@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Colección MKT web</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+  <link rel="stylesheet" href="css/blk-design-system-react.min.css">
+  <script src="https://kit.fontawesome.com/710ee664bc.js" crossorigin="anonymous"></script>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <!-- Popper JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div class="row">
+      <div class="col text-center">
+        <h1>Inicia sesión o regístrate</h1>
+      </div>
+    </div>
+    <br>
+    <form id="login_form">
+      <div class="form-group">
+        <label for="email" class=""><strong>Correo:</strong></label>
+        <input type="email" class="form-control" id="email" name="email">
+      </div>
+      <div class="form-group">
+        <label for="psw"><strong>Contraseña:</strong></label>
+        <input type="password" class="form-control" id="psw" name="psw">
+      </div>
+      <div class="form-row">
+        <div class="col-12 col-md">
+          <button type="submit" class="btn btn-block btn-primary">Iniciar sesión</button>
+        </div>
+        <div class="col-12 col-md">
+          <button type="button" class="btn btn-block btn-secondary">
+            <i class="fab fa-google"></i> Iniciar sesión con Google
+          </button>
+        </div>
+      </div>
+    </form>
+
+  </div>
+
+  <!-- Insert these scripts at the bottom of the HTML, but before you use any Firebase services -->
+
+  <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-app.js"></script>
+
+  <!-- If you enabled Analytics in your project, add the Firebase SDK for Analytics -->
+  <script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-analytics.js"></script>
+
+  <!-- Add Firebase products that you want to use -->
+  <script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-storage.js"></script>
+  <script src="js/login.js"></script>
+</body>
+
+</html>
