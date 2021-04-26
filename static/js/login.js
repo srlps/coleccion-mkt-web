@@ -1,27 +1,38 @@
-function login() {
-    let email = $("#email").val();
-    let psw = $("#psw").val();
-    console.log('hola mundo')
+function login_with_google() {
+    let provider = new firebase.auth.GoogleAuthProvider();
+    firebase.auth().signInWithRedirect(provider);
 }
 
 $(document).ready(function () {
-    // Your web app's Firebase configuration
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-    var firebaseConfig = {
-        apiKey: "AIzaSyDBGJGoVw2m3VIgkWPDIzXucfGj93CFMcc",
-        authDomain: "coleccion-mkt-web.firebaseapp.com",
-        projectId: "coleccion-mkt-web",
-        storageBucket: "coleccion-mkt-web.appspot.com",
-        messagingSenderId: "117454806416",
-        appId: "1:117454806416:web:d52990406b03c8852d6715",
-        measurementId: "G-486H9TQ8MG"
-    };
-    // Initialize Firebase
+    // firebase init
+    let firebaseConfigBase64 = "eyJhcGlLZXkiOiJBSXphU3lEQkdKR29WdzJtM1ZJZ2tXUERJelh1Y2ZHajkzQ0ZNY2MiLCJhdXRoRG9tYWluIjoiY29sZWNjaW9uLW1rdC13ZWIuZmlyZWJhc2VhcHAuY29tIiwicHJvamVjdElkIjoiY29sZWNjaW9uLW1rdC13ZWIiLCJzdG9yYWdlQnVja2V0IjoiY29sZWNjaW9uLW1rdC13ZWIuYXBwc3BvdC5jb20iLCJtZXNzYWdpbmdTZW5kZXJJZCI6IjExNzQ1NDgwNjQxNiIsImFwcElkIjoiMToxMTc0NTQ4MDY0MTY6d2ViOmQ1Mjk5MDQwNmIwM2M4ODUyZDY3MTUiLCJtZWFzdXJlbWVudElkIjoiRy00ODZIOVRROE1HIn0=";
+    let firebaseConfig = JSON.parse(atob(firebaseConfigBase64));
     firebase.initializeApp(firebaseConfig);
     firebase.analytics();
 
-    $("#login_form").submit(function (e) {
-        e.preventDefault();
-        login();
+    // auth init
+    firebase.auth().useDeviceLanguage();
+    firebase.auth()
+        .getRedirectResult()
+        .then((result) => {
+            if (result.credential) {
+                let tokens = {
+                    idToken: result.credential.idToken,
+                    accessToken: result.credential.accessToken
+                };
+                let tokens_encoded = btoa(JSON.stringify(tokens));
+                Cookies.set("tokens", tokens_encoded);
+                location.replace("/collection");
+            } else {
+                $("#google_login_button").prop('disabled', false);
+                $("#spinner-row").hide();
+            }
+        }).catch((error) => {
+            let errorCode = error.code;
+        });
+
+    // events
+    $("#google_login_button").click(function (e) {
+        login_with_google();
     });
 });
