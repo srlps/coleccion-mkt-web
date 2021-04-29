@@ -12,23 +12,16 @@ $(document).ready(function () {
 
     // auth init
     firebase.auth().useDeviceLanguage();
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     firebase.auth()
         .getRedirectResult()
         .then((result) => {
             if (result.credential) {
-                let tokens = {
-                    idToken: result.credential.idToken,
-                    accessToken: result.credential.accessToken
-                };
-                let tokens_encoded = btoa(JSON.stringify(tokens));
-                Cookies.set("tokens", tokens_encoded);
                 location.replace("/collection");
             } else {
                 $("#google_login_button").prop('disabled', false);
                 $("#spinner-row").hide();
             }
-        }).catch((error) => {
-            let errorCode = error.code;
         });
 
     // events
