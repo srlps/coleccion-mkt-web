@@ -1,3 +1,4 @@
+var idleTime = 0;
 var currentUser;
 var userContentRef;
 var userContent = {
@@ -13,58 +14,67 @@ var background_super = "https://mario.wiki.gallery/images/a/a6/MKT_Icon_Rare.png
 var background_highend = "https://mario.wiki.gallery/images/8/8f/MKT_Icon_HighEnd.png";
 
 var opacity_not_owned = "0.4";
+var plus_minus_enabled_style = "btn-info";
+var plus_minus_disabled_style = "btn-secondary";
 
 var card_template = `
-<div class="col mb-2 mb-md-4 px-2 px-md-3">
+<div class="mkt-card col mb-2 mb-md-4 px-2 px-md-3" id="{{id}}">
     <div class="card mb-0">
         <img data-src="{{background}}" class="card-img lazyload">
         <div class="card-img-overlay p-2" style="display:flex;align-items:center;justify-content:center;">
-            <img data-src="{{object}}" class="card-img lazyload" style="max-height:100%;object-fit:contain;opacity:{{opacity}}"
-                loading="lazy">
+            <img data-src="{{object}}" class="mkt-element-img card-img lazyload"
+                style="max-height:100%;object-fit:contain;opacity:{{opacity}}" loading="lazy">
         </div>
     </div>
     <div class="row m-0" style="height:40px;"">
-      <div class="col-3 p-0 text-center">
-        <button class="btn btn-info btn-sm mw-100 m-0 py-1 py-md-2 px-1 px-md-2" type="button">
-          <i class="fas fa-minus"></i>
-        </button>
-      </div>
-      <div class="col-6 p-0 text-center">
-        <p class="h2 font-weight-bold text-white">{{level}}</p>
-      </div>
-      <div class="col-3 p-0 text-center">
-        <button class="btn btn-info btn-sm mw-100 m-0 py-1 py-md-2 px-1 px-md-2" type="button">
-          <i class="fas fa-plus"></i>
-        </button>
-      </div>
+        <div class="col-3 p-0 text-center">
+            <button class="mkt-minus-button btn {{minus-style}} btn-sm mw-100 m-0 py-1 py-md-2 px-1 px-md-2"
+                type="button" {{minus-disabled}}>
+            <i class="fas fa-minus"></i>
+            </button>
+        </div>
+        <div class="col-6 p-0 text-center">
+            <p class="mkt-level h2 font-weight-bold text-white">{{level}}</p>
+        </div>
+        <div class="col-3 p-0 text-center">
+            <button class="mkt-plus-button btn {{plus-style}} btn-sm mw-100 m-0 py-1 py-md-2 px-1 px-md-2"
+                type="button" {{plus-disabled}}>
+            <i class="fas fa-plus"></i>
+            </button>
+        </div>
     </div>
 </div>
 `;
+
+function sync_user_data() {
+    userContentRef.set(userContent);
+}
 
 function select_background(tier) {
     return tier == 1 ? background_normal : (tier == 2 ? background_super : background_highend);
 }
 
-function is_owned(type, id) {
+function select_array(type) {
     switch (type) {
         case 1:
-            return userContent.drivers.some((val, i, arr) => val.id == id);
+            return userContent.drivers;
         case 2:
-            return userContent.karts.some((val, i, arr) => val.id == id);
+            return userContent.karts;
         case 3:
-            return userContent.gliders.some((val, i, arr) => val.id == id);
+            return userContent.gliders;
     }
 }
 
-function select_element(type, id) {
-    switch (type) {
-        case 1:
-            return userContent.drivers.find((val, i, arr) => val.id == id);
-        case 2:
-            return userContent.karts.find((val, i, arr) => val.id == id);
-        case 3:
-            return userContent.gliders.find((val, i, arr) => val.id == id);
-    }
+function disable_plus_minus_button(button) {
+    button.addClass(plus_minus_disabled_style);
+    button.removeClass(plus_minus_enabled_style);
+    button.prop('disabled', true);
+}
+
+function enable_plus_minus_button(button) {
+    button.addClass(plus_minus_enabled_style);
+    button.removeClass(plus_minus_disabled_style);
+    button.prop('disabled', false);
 }
 
 function load_content(type) {
@@ -74,19 +84,68 @@ function load_content(type) {
         query: `select A, D, E where F = ${type} order by C asc`,
         reset: true,
         rowTemplate: (row) => {
-            let element = select_element(type, row.cells.id);
+            let element = select_array(type).find((val, i, arr) => val.id == row.cells.id);
             let level = element ? element.level : 0;
-            let owned = level != 0;
             return card_template
+                .replace("{{id}}", row.cells.id)
                 .replace("{{background}}", select_background(row.cells.tier))
                 .replace("{{object}}", row.cells.image_url)
-                .replace("{{opacity}}", owned ? "1" : opacity_not_owned)
-                .replace("{{level}}", level);
+                .replace("{{opacity}}", level > 0 ? "1" : opacity_not_owned)
+                .replace("{{level}}", level)
+                .replace("{{minus-style}}", level > 0 ? plus_minus_enabled_style : plus_minus_disabled_style)
+                .replace("{{minus-disabled}}", level > 0 ? "" : "disabled")
+                .replace("{{plus-style}}", level < 7 ? plus_minus_enabled_style : plus_minus_disabled_style)
+                .replace("{{plus-disabled}}", level < 7 ? "" : "disabled");
+        },
+        callback: function (error, options, response) {
+            $(".mkt-minus-button").click(function (e) {
+                idleTime = 0;
+                let minus_button = $(e.currentTarget);
+                let card = minus_button.parents(".mkt-card");
+                let id = parseInt(card.attr("id"));
+                let element = select_array(type).find((val, i, arr) => val.id == id);
+                element.level -= 1;
+                card.find(".mkt-level").text(element.level);
+                if (element.level == 0) {
+                    disable_plus_minus_button(minus_button);
+                    card.find(".mkt-element-img").css("opacity", opacity_not_owned);
+                }
+                if (element.level == 6) {
+                    let plus_button = card.find(".mkt-plus-button");
+                    enable_plus_minus_button(plus_button);
+                }
+            });
+            $(".mkt-plus-button").click(function (e) {
+                idleTime = 0;
+                let plus_button = $(e.currentTarget);
+                let card = plus_button.parents(".mkt-card");
+                let id = parseInt(card.attr("id"));
+                let element = select_array(type).find((val, i, arr) => val.id == id);
+                if (!element) {
+                    element = {
+                        id: id,
+                        level: 1
+                    };
+                    select_array(type).push(element);
+                } else {
+                    element.level += 1;
+                }
+                card.find(".mkt-level").text(element.level);
+                if (element.level == 7) {
+                    disable_plus_minus_button(plus_button);
+                }
+                if (element.level == 1) {
+                    let minus_button = card.find(".mkt-minus-button");
+                    enable_plus_minus_button(minus_button);
+                    card.find(".mkt-element-img").css("opacity", "1");
+                }
+            });
         }
     });
 }
 
 function load_page() {
+    // elemet type radio selector events
     $("input[name='element-type']").change(function (e) {
         // style control
         let active = $(e.target).parent();
@@ -108,6 +167,7 @@ function load_page() {
                 break;
         }
     });
+    // firestore read user data and draw content
     let db = firebase.firestore();
     userContentRef = db.collection("elementos").doc(currentUser.uid);
     userContentRef.get().then((doc) => {
@@ -118,6 +178,13 @@ function load_page() {
         }
         load_content(1);
     });
+    // idle sync config
+    var idleInterval = setInterval(() => {
+        idleTime += 1;
+        if (idleTime > 3) { // 2 seconds
+            sync_user_data();
+        }
+    }, 500); // 0.5 seconds
 }
 
 $(document).ready(function () {
