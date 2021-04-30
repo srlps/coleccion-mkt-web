@@ -27,6 +27,9 @@
 
   <!-- sheetrock (google spreadsheet as database) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-sheetrock/1.1.4/dist/sheetrock.min.js"></script>
+
+  <!-- sheetrock (google spreadsheet as database) -->
+  <script src="http://afarkas.github.io/lazysizes/lazysizes.min.js"></script>
 </head>
 
 <body>
@@ -39,20 +42,19 @@
     <div class="row mb-4">
       <div class="col text-center">
         <div class="btn-group btn-group-toggle" data-toggle="buttons">
-          <label class="mkt-radio btn btn-primary active">
+          <label class="mkt-radio btn btn-primary px-3 px-md-5 active">
             <input type="radio" name="element-type" value="drivers" checked> Pilotos
           </label>
-          <label class="mkt-radio btn btn-secondary">
+          <label class="mkt-radio btn btn-secondary px-3 px-md-5">
             <input type="radio" name="element-type" value="karts"> Vehículos
           </label>
-          <label class="mkt-radio btn btn-secondary">
+          <label class="mkt-radio btn btn-secondary px-3 px-md-5">
             <input type="radio" name="element-type" value="gliders"> Alas
           </label>
         </div>
       </div>
     </div>
-    <div class="row row-cols-4" id="card-grid">
-    </div>
+    <div class="row row-cols-4" id="card-grid"></div>
   </div>
 
   <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
@@ -64,7 +66,6 @@
   <!-- Add Firebase products that you want to use -->
   <script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-storage.js"></script>
 
   <!-- app logic -->
   <script src="js/collection.js"></script>
