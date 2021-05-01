@@ -8,7 +8,15 @@ El proyecto usa las siguientes herramientas:
 - Bootstrap
 - JQuery
 - Fontawesome
-- BLK Design System React (El tema del estilo css)
-- Firebase (auth, firestore y storage)
+- BLK Design System React (El tema del sitio en css)
+- Firebase (auth y firestore)
+- Sheetrock (lectura de Google Sheets como sql)
+- Lazysizes (Cache y lazy load para imágenes)
 
-Las imagenes son obtenidas de la wiki de la wiki de los juegos de mario [aquí](https://www.mariowiki.com/Gallery:Mario_Kart_Tour_sprites_and_models).
+Las imagenes son obtenidas de la wiki de los juegos de mario [aquí](https://www.mariowiki.com/Gallery:Mario_Kart_Tour_sprites_and_models).
+
+## Estructura
+
+En `src` se encuentran los archivos estaticos de la aplicación web.
+
+En `dist` se encuentra la página lista para despliegue en firebase con minify y uglyfy de archivos.
