@@ -17,7 +17,7 @@ $(document).ready(function () {
         .getRedirectResult()
         .then((result) => {
             if (result.credential) {
-                location.replace("/collection");
+                location.replace("/collection.html");
             } else {
                 $("#google_login_button").prop('disabled', false);
                 $("#spinner-row").hide();
