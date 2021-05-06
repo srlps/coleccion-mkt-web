@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Colección MKT web</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="icon" href="favicon.ico">
+
+  <!-- bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+  <!-- blk design system react theme CSS -->
+  <link rel="stylesheet" href="css/blk-design-system-react.min.css">
+
+  <!-- custom CSS -->
+  <link rel="stylesheet" href="css/mkt.css">
+
+  <!-- fontawesome -->
+  <script src="https://kit.fontawesome.com/710ee664bc.js" crossorigin="anonymous"></script>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <!-- Popper JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+  <!-- bootstrap JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <!-- sheetrock (google spreadsheet as database) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-sheetrock/1.1.4/dist/sheetrock.min.js"></script>
+
+  <!-- lazysizes (img cache and lazy loading) -->
+  <script src="js/lazysizes.min.js"></script>
+</head>
+
+<body>
+
+  <div class="row mt-5" id="spinner-row">
+    <div class="col text-center">
+      <i class="fas fa-spinner fa-5x fa-spin"></i>
+    </div>
+  </div>
+
+  <div class="row mt-0" id="main-div" style="display:none;">
+    <div class="col-2 bg-primary px-1">
+      <div class="row row-cols-1 px-0">
+        <div class="col text-center pt-3">
+          <h4>Colección MKT Web</h4>
+        </div>
+        <div class="col px-2">
+          <a class="active" href="#collection">Colección</a>
+        </div>
+        <div class="col px-2">
+          <a class="disabled" href="#ranking">Ranking</a>
+        </div>
+        <div class="col px-2">
+          <a class="disabled" href="#circuits">Circuitos</a>
+        </div>
+        <div class="col px-2">
+          <a class="disabled" href="#calculator">Calculadora de puntos</a>
+        </div>
+        <div class="col px-2">
+          <a class="disabled" href="#stats">Estadísticas</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-10" id="content-container"></div>
+  </div>
+
+  <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-app.js"></script>
+
+  <!-- If you enabled Analytics in your project, add the Firebase SDK for Analytics -->
+  <script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-analytics.js"></script>
+
+  <!-- Add Firebase products that you want to use -->
+  <script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-firestore.js"></script>
+
+  <!-- app logic -->
+  <script src="js/main.js"></script>
+</body>
+
+</html>

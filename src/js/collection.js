@@ -1,6 +1,6 @@
+var idleInterval;
 var idleTime = 15;
 var dataSyncd = true;
-var currentUser;
 var userContentRef;
 var userContent = {
     drivers: [],
@@ -154,7 +154,7 @@ function load_content(type) {
     });
 }
 
-function load_page() {
+$(function () {
     // elemet type radio selector events
     $("input[name='element-type']").change(function (e) {
         // style control
@@ -189,33 +189,10 @@ function load_page() {
         load_content(1);
     });
     // idle sync config
-    var idleInterval = setInterval(() => {
+    idleInterval = setInterval(() => {
         idleTime += 1;
         if (idleTime > 14) { // 1.5 seconds
             sync_user_data();
         }
     }, 100); // 0.1 seconds
-}
-
-$(document).ready(function () {
-    // firebase init
-    let firebaseConfigBase64 = "eyJhcGlLZXkiOiJBSXphU3lEQkdKR29WdzJtM1ZJZ2tXUERJelh1Y2ZHajkzQ0ZNY2MiLCJhdXRoRG9tYWluIjoiY29sZWNjaW9uLW1rdC13ZWIuZmlyZWJhc2VhcHAuY29tIiwicHJvamVjdElkIjoiY29sZWNjaW9uLW1rdC13ZWIiLCJzdG9yYWdlQnVja2V0IjoiY29sZWNjaW9uLW1rdC13ZWIuYXBwc3BvdC5jb20iLCJtZXNzYWdpbmdTZW5kZXJJZCI6IjExNzQ1NDgwNjQxNiIsImFwcElkIjoiMToxMTc0NTQ4MDY0MTY6d2ViOmQ1Mjk5MDQwNmIwM2M4ODUyZDY3MTUiLCJtZWFzdXJlbWVudElkIjoiRy00ODZIOVRROE1HIn0=";
-    let firebaseConfig = JSON.parse(atob(firebaseConfigBase64));
-    firebase.initializeApp(firebaseConfig);
-    firebase.analytics();
-
-    // auth init
-    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-    firebase.auth().onAuthStateChanged(user => {
-        if (user) {
-            currentUser = user;
-            $("#loader-container").hide();
-            $("#main-container").show();
-            load_page();
-        }
-        else {
-            location.replace("/");
-        }
-    });
-
 });
