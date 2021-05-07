@@ -1,8 +1,29 @@
+var idleTime = 15;
+var dataSyncd = true;
 var currentUser;
+var userContentRef;
+var userContent = {
+    drivers: [],
+    gliders: [],
+    karts: []
+};
+
+function set_data_unsyncd() {
+    idleTime = 0;
+    dataSyncd = false;
+    $("#sync-icon").show();
+}
+
+function sync_user_data() {
+    if (!dataSyncd) {
+        dataSyncd = true;
+        userContentRef.set(userContent).then(() => $("#sync-icon").hide());
+    }
+}
 
 $(function () {
     // ajax init
-    $.ajaxSetup ({
+    $.ajaxSetup({
         async: true,
         cache: false
     });
@@ -17,7 +38,25 @@ $(function () {
     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     firebase.auth().onAuthStateChanged(user => {
         if (user) {
+            // firestore read user data
             currentUser = user;
+            let db = firebase.firestore();
+            userContentRef = db.collection("elementos").doc(currentUser.uid);
+            userContentRef.get().then((doc) => {
+                if (doc.exists) {
+                    userContent = doc.data();
+                } else {
+                    userContentRef.set(userContent);
+                }
+            });
+            // idle sync config
+            idleInterval = setInterval(() => {
+                idleTime += 1;
+                if (idleTime > 14) { // 1.5 seconds
+                    sync_user_data();
+                }
+            }, 100); // 0.1 seconds
+            // load content
             $("#content-container").load("/collection.html", () => {
                 $("#spinner-row").hide();
                 $("#main-div").show();

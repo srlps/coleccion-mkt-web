@@ -1,13 +1,3 @@
-var idleInterval;
-var idleTime = 15;
-var dataSyncd = true;
-var userContentRef;
-var userContent = {
-    drivers: [],
-    gliders: [],
-    karts: []
-};
-
 var elements_spreadsheet_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=0";
 
 var background_normal = "https://mario.wiki.gallery/images/2/29/MKT_Icon_Normal.png";
@@ -46,19 +36,6 @@ var card_template = `
     </div>
 </div>
 `;
-
-function set_data_unsyncd() {
-    idleTime = 0;
-    dataSyncd = false;
-    $("#sync-icon").show();
-}
-
-function sync_user_data() {
-    if (!dataSyncd) {
-        userContentRef.set(userContent).then(() => $("#sync-icon").hide());
-        dataSyncd = true;
-    }
-}
 
 function select_background(tier) {
     return tier == 1 ? background_normal : (tier == 2 ? background_super : background_highend);
@@ -177,22 +154,5 @@ $(function () {
                 break;
         }
     });
-    // firestore read user data and draw content
-    let db = firebase.firestore();
-    userContentRef = db.collection("elementos").doc(currentUser.uid);
-    userContentRef.get().then((doc) => {
-        if (doc.exists) {
-            userContent = doc.data();
-        } else {
-            userContentRef.set(userContent);
-        }
-        load_content(1);
-    });
-    // idle sync config
-    idleInterval = setInterval(() => {
-        idleTime += 1;
-        if (idleTime > 14) { // 1.5 seconds
-            sync_user_data();
-        }
-    }, 100); // 0.1 seconds
+    load_content(1);
 });
