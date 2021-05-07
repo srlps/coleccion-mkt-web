@@ -21,7 +21,7 @@ function sync_user_data() {
     }
 }
 
-$(function () {
+$(() => {
     // ajax init
     $.ajaxSetup({
         async: true,
@@ -33,13 +33,22 @@ $(function () {
     let firebaseConfig = JSON.parse(atob(firebaseConfigBase64));
     firebase.initializeApp(firebaseConfig);
     firebase.analytics();
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+    // events init
+    $("#logout-button").click((e) => {
+        firebase.auth().signOut().then(() => {
+            location.replace("/login.html");
+        });
+    });
 
     // auth init
-    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-    firebase.auth().onAuthStateChanged(user => {
+    firebase.auth().onAuthStateChanged((user) => {
         if (user) {
             // firestore read user data
             currentUser = user;
+            $("#user-display-name").text(currentUser.displayName);
+            $("#user-profile-picture").attr("src", currentUser.photoURL);
             let db = firebase.firestore();
             userContentRef = db.collection("elementos").doc(currentUser.uid);
             userContentRef.get().then((doc) => {
@@ -63,7 +72,7 @@ $(function () {
             });
         }
         else {
-            location.replace("/");
+            location.replace("/login.html");
         }
     });
 });

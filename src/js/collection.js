@@ -84,8 +84,8 @@ function load_content(type) {
                 .replace("{{plus-style}}", level < 7 ? plus_minus_enabled_style : plus_minus_disabled_style)
                 .replace("{{plus-disabled}}", level < 7 ? "" : "disabled");
         },
-        callback: function (error, options, response) {
-            $(".mkt-minus-button").click(function (e) {
+        callback: (error, options, response) => {
+            $(".mkt-minus-button").click((e) => {
                 set_data_unsyncd();
                 let minus_button = $(e.currentTarget);
                 let card = minus_button.parents(".mkt-card");
@@ -102,7 +102,7 @@ function load_content(type) {
                     enable_plus_minus_button(plus_button);
                 }
             });
-            $(".mkt-plus-button").click(function (e) {
+            $(".mkt-plus-button").click((e) => {
                 set_data_unsyncd();
                 let plus_button = $(e.currentTarget);
                 let card = plus_button.parents(".mkt-card");
@@ -131,9 +131,9 @@ function load_content(type) {
     });
 }
 
-$(function () {
+$(() => {
     // elemet type radio selector events
-    $("input[name='element-type']").change(function (e) {
+    $("input[name='element-type']").change((e) => {
         // style control
         let active = $(e.target).parent();
         active.addClass("btn-primary");

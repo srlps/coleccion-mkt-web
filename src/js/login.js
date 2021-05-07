@@ -13,16 +13,23 @@ $(function () {
     // auth init
     firebase.auth().useDeviceLanguage();
     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-    firebase.auth()
-        .getRedirectResult()
-        .then((result) => {
-            if (result.credential) {
-                location.replace("/main.html#collection");
-            } else {
-                $("#google_login_button").prop('disabled', false);
-                $("#spinner-row").hide();
-            }
-        });
+    firebase.auth().onAuthStateChanged(user => {
+        if (user) {
+            location.replace("/#collection");
+        }
+        else {
+            firebase.auth()
+                .getRedirectResult()
+                .then((result) => {
+                    if (result.credential) {
+                        location.replace("/#collection");
+                    } else {
+                        $("#google_login_button").prop('disabled', false);
+                        $("#spinner-row").hide();
+                    }
+                });
+        }
+    });
 
     // events
     $("#google_login_button").click(function (e) {
