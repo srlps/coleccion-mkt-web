@@ -43,24 +43,70 @@
     </div>
   </div>
 
-  <div class="row mt-0 mx-0" id="main-div" style="display:none;">
-    <div class="col-2 bg-primary px-0">
+  <div class="modal mkt-menu-modal-fade" id="menuModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-sm position-fixed" style="display:contents;">
+      <div class="modal-content">
+        <div class="modal-body bg-primary p-1">
+          <div class="list-group border-0">
+            <div class="dropdown-divider"></div>
+            <div class="list-group-item bg-primary border-0 p-0">
+              <div class="d-flex w-100 justify-content-start align-items-center">
+                <img class="mkt-user-profile-picture img-fluid rounded-lg w-25 p-2" style="height:min-content;">
+                <div class="text-center pl-2 w-75">
+                  <h5 class="mkt-user-display-name font-weight-bold mb-1"></h5>
+                  <button type="button" class="mkt-logout-button btn btn-sm btn-outline-primary">Salir</button>
+                </div>
+              </div>
+            </div>
+            <div class="dropdown-divider"></div>
+            <a class="mkt-menu-item list-group-item list-group-item-action list-group-item-primary px-3 active disabled"
+              aria-current="true" tabindex="-1" aria-disabled="true" href="#collection">Colección</a>
+            <a class="list-group-item list-group-item-action list-group-item-primary px-3 disabled" tabindex="-1"
+              aria-disabled="true" href="#ranking">Ranking</a>
+            <a class="list-group-item list-group-item-action list-group-item-primary px-3 disabled" tabindex="-1"
+              aria-disabled="true" href="#circuits">Circuitos</a>
+            <a class="list-group-item list-group-item-action list-group-item-primary px-3 disabled" tabindex="-1"
+              aria-disabled="true" href="#calculator">Calculadora de puntos</a>
+            <a class="list-group-item list-group-item-action list-group-item-primary px-3 disabled" tabindex="-1"
+              aria-disabled="true" href="#stats">Estadísticas</a>
+            <div class="dropdown-divider"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex d-md-none row justify-content-start align-items-center sticky-top bg-primary mt-0 mx-0"
+    id="menu-div-sm" style="display:none !important;">
+    <div class="col-2 px-0 text-center">
+      <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#menuModal">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+    <div class="col-8 px-0 text-center">
+      <h4 class="font-weight-bold mb-0">Colección MKT Web</h4>
+    </div>
+  </div>
+
+  <div class="row justify-content-center mt-0 mx-0" id="main-div" style="display:none;">
+    <div class="d-none d-md-block col-md-2 bg-primary px-0">
       <div class="list-group border-0 position-sticky" style="top:0;overflow-y:auto;height:100vh;">
         <div class="list-group-item bg-primary border-0 px-2 pb-2 text-center">
           <h4 class="font-weight-bold mb-0">Colección MKT Web</h4>
         </div>
         <div class="dropdown-divider"></div>
-        <div class="list-group-item bg-primary border-0 px-3 py-2">
+        <div class="list-group-item bg-primary border-0 px-2 px-lg-3 py-2">
           <div class="d-flex w-100 justify-content-start align-items-center">
-            <img class="img-fluid rounded-lg w-25" id="user-profile-picture" style="height:min-content;">
+            <img class="mkt-user-profile-picture img-fluid rounded-lg w-25" style="height:min-content;">
             <div class="text-center pl-2 w-75">
-              <h5 class="font-weight-bold mb-1" id="user-display-name"></h5>
-              <button type="button" class="btn btn-sm btn-outline-primary" id="logout-button">Salir</button>
+              <h5 class="mkt-user-display-name font-weight-bold mb-1"></h5>
+              <button type="button" class="mkt-logout-button btn btn-sm btn-outline-primary">Salir</button>
             </div>
           </div>
         </div>
         <div class="dropdown-divider"></div>
-        <a class="list-group-item list-group-item-action list-group-item-primary px-3 active disabled"
+        <a class="mkt-menu-item list-group-item list-group-item-action list-group-item-primary px-3 active disabled"
           aria-current="true" tabindex="-1" aria-disabled="true" href="#collection">Colección</a>
         <a class="list-group-item list-group-item-action list-group-item-primary px-3 disabled" tabindex="-1"
           aria-disabled="true" href="#ranking">Ranking</a>
@@ -74,7 +120,7 @@
       </div>
     </div>
 
-    <div class="col-10 px-0" id="content-container"></div>
+    <div class="col-auto col-md-10 px-0" id="content-container"></div>
   </div>
 
   <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
