@@ -34,3 +34,25 @@
     padding-right: 25% !important;
     transform: translateX(0%);
 }
+
+.dropdown-menu:before {
+    display: none !important;
+}
+
+.dropdown-menu.dropdown-menu-center {
+    right: auto !important;
+    left: 50% !important;
+    top: 100% !important;
+    -webkit-transform: translate(-50%, 0) !important;
+    -o-transform: translate(-50%, 0) !important;
+    transform: translate(-50%, 0) !important;
+}
+
+.dropdown-menu.dropdown-menu-center.show {
+    right: auto !important;
+    left: 50% !important;
+    top: 100% !important;
+    -webkit-transform: translate(-50%, 0) !important;
+    -o-transform: translate(-50%, 0) !important;
+    transform: translate(-50%, 0) !important;
+}

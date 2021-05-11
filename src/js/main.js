@@ -93,15 +93,17 @@ $(() => {
         });
     });
     $(".mkt-menu-item").click((e) => {
-        let item = $(e.currentTarget);
+        let item_href = $(e.currentTarget).attr("href");
         unset_active_menu_item($(".mkt-menu-item.active"));
-        set_active_menu_item(item);
-        switch (item.attr("href")) {
+        set_active_menu_item($(`.mkt-menu-item[href='${item_href}']`));
+        switch (item_href) {
             case "#collection":
+                $("#menuModal").modal("hide");
                 $("#content-container").html(loading_spinner);
                 $("#content-container").load("/collection.html");
                 break;
             case "#ranking":
+                $("#menuModal").modal("hide");
                 $("#content-container").html(loading_spinner);
                 $("#content-container").load("/ranking.html");
                 break;
