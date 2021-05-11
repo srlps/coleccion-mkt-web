@@ -1,3 +1,13 @@
+var season = "Temporada de Sidney";
+var update_date = "30/04/2021";
+var version = "1.1.1";
+var autor = "Sergio Robles";
+
+var elements_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=0";
+var circuits_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=1377585849";
+var objects_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=1554086270";
+var elements_circuits_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=1130853870";
+
 var idleTime = 15;
 var dataSyncd = true;
 var currentUser;
@@ -69,6 +79,12 @@ $(() => {
     firebase.initializeApp(firebaseConfig);
     firebase.analytics();
     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+    // web info init
+    $(".mkt-season").text(season);
+    $(".mkt-update-date").text(`Actualizado al ${update_date}`);
+    $(".mkt-version").text(`Versión: ${version}`);
+    $(".mkt-autor").text(`Autor: ${autor}`);
 
     // events init
     $(".mkt-logout-button").click((e) => {
