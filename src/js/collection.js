@@ -1,12 +1,8 @@
-var background_normal = "https://mario.wiki.gallery/images/2/29/MKT_Icon_Normal.png";
-var background_super = "https://mario.wiki.gallery/images/a/a6/MKT_Icon_Rare.png";
-var background_highend = "https://mario.wiki.gallery/images/8/8f/MKT_Icon_HighEnd.png";
-
 var opacity_not_owned = "0.4";
 var plus_minus_enabled_style = "btn-info";
 var plus_minus_disabled_style = "btn-secondary";
 
-var card_template = `
+var collection_card_template = `
 <div class="mkt-card col mb-2 mb-md-4 px-2 px-md-3" id="{{id}}">
     <div class="card mb-0">
         <img data-src="{{background}}" class="mkt-element-img card-img lazyload" style="opacity:{{opacity}}" loading="lazy">
@@ -35,21 +31,6 @@ var card_template = `
 </div>
 `;
 
-function select_background(tier) {
-    return tier == 1 ? background_normal : (tier == 2 ? background_super : background_highend);
-}
-
-function select_array(type) {
-    switch (type) {
-        case 1:
-            return userContent.drivers;
-        case 2:
-            return userContent.karts;
-        case 3:
-            return userContent.gliders;
-    }
-}
-
 function disable_plus_minus_button(button) {
     button.addClass(plus_minus_disabled_style);
     button.removeClass(plus_minus_enabled_style);
@@ -62,7 +43,7 @@ function enable_plus_minus_button(button) {
     button.prop('disabled', false);
 }
 
-function load_content(type) {
+function load_collection(type) {
     $("#card-grid").empty();
     $("#card-grid").sheetrock({
         url: elements_url,
@@ -71,7 +52,7 @@ function load_content(type) {
         rowTemplate: (row) => {
             let element = select_array(type).find((val, i, arr) => val.id == row.cells.id);
             let level = element ? element.level : 0;
-            return card_template
+            return collection_card_template
                 .replaceAll("{{id}}", row.cells.id)
                 .replaceAll("{{background}}", select_background(row.cells.tier))
                 .replaceAll("{{object}}", row.cells.image_url)
@@ -131,7 +112,7 @@ function load_content(type) {
 
 $(() => {
     // elemet type radio selector events
-    $("input[name='element-type']").change((e) => {
+    $("#types-div").find("input").change((e) => {
         // style control
         let active = $(e.target).parent();
         active.addClass("btn-primary");
@@ -142,15 +123,15 @@ $(() => {
         // content control
         switch (e.target.value) {
             case "drivers":
-                load_content(1);
+                load_collection(1);
                 break;
             case "karts":
-                load_content(2);
+                load_collection(2);
                 break;
             case "gliders":
-                load_content(3);
+                load_collection(3);
                 break;
         }
     });
-    load_content(1);
+    load_collection(1);
 });

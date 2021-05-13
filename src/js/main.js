@@ -1,15 +1,10 @@
-var season = "Temporada de Sidney";
-var update_date = "30/04/2021";
+// metadata variables
+var metadata_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=928955547";
 var version = "1.1.1";
-var autor = "Sergio Robles";
+var autor = "srlps";
+var autor_url = "https://github.com/srlps";
 
-var elements_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=0";
-var circuits_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=1377585849";
-var objects_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=1554086270";
-var elements_circuits_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=1130853870";
-
-var idleTime = 15;
-var dataSyncd = true;
+// persistence
 var currentUser;
 var userContentRef;
 var userContent = {
@@ -18,13 +13,26 @@ var userContent = {
     karts: []
 };
 
-var loading_spinner = `
-<div class="row mt-5">
-    <div class="col text-center">
-        <i class="fas fa-spinner fa-5x fa-spin"></i>
-    </div>
-</div>
-`;
+function select_array(type) {
+    switch (type) {
+        case 1:
+            return userContent.drivers;
+        case 2:
+            return userContent.karts;
+        case 3:
+            return userContent.gliders;
+    }
+}
+
+// info database
+var elements_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=0";
+var circuits_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=1377585849";
+var objects_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=1554086270";
+var elements_circuits_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=1130853870";
+
+// non aggresive sync
+var idleTime = 15;
+var dataSyncd = true;
 
 function set_data_unsyncd() {
     idleTime = 0;
@@ -39,6 +47,17 @@ function sync_user_data() {
     }
 }
 
+// elements backgrounds
+var background_normal = "https://mario.wiki.gallery/images/2/29/MKT_Icon_Normal.png";
+var background_super = "https://mario.wiki.gallery/images/a/a6/MKT_Icon_Rare.png";
+var background_highend = "https://mario.wiki.gallery/images/8/8f/MKT_Icon_HighEnd.png";
+var backgrounds = [background_normal, background_super, background_highend];
+
+function select_background(tier) {
+    return backgrounds[tier - 1];
+}
+
+// utility functions
 function addVisibilityChangeEvent(element, handler) {
     let observer = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
@@ -50,6 +69,7 @@ function addVisibilityChangeEvent(element, handler) {
     observer.observe(element);
 };
 
+// main page functions
 function set_active_menu_item(item) {
     item.addClass("active");
     item.addClass("disabled");
@@ -66,6 +86,20 @@ function unset_active_menu_item(item) {
     item.removeAttr("aria-disabled");
 }
 
+// main page templates
+var loading_spinner = `
+<div class="row mt-5">
+    <div class="col text-center">
+        <i class="fas fa-spinner fa-5x fa-spin"></i>
+    </div>
+</div>
+`;
+
+var metadata_template = `
+<p style="color:rgba(34,42,66,0.75) !important;">{{content}}</p>
+`;
+
+// main page init
 $(() => {
     // ajax init
     $.ajaxSetup({
@@ -81,10 +115,29 @@ $(() => {
     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
     // web info init
-    $(".mkt-season").text(season);
-    $(".mkt-update-date").text(`Actualizado al ${update_date}`);
+    sheetrock({
+        url: metadata_url,
+        query: "select B, C order by A asc",
+        reset: true,
+        rowTemplate: (row) => {
+            let result;
+            switch (row.cells.name) {
+                case "season":
+                    result = row.cells.value;
+                    break;
+                case "update_date":
+                    result = `Actualizado al ${row.cells.value}`;
+                    break;
+            }
+            return metadata_template
+                .replaceAll("{{content}}", result);
+        },
+        callback: (error, options, response) => {
+            $(".mkt-metadata").html(response.html);
+        }
+    });
     $(".mkt-version").text(`Versión: ${version}`);
-    $(".mkt-autor").text(`Autor: ${autor}`);
+    $(".mkt-autor").html(`Autor: <a class="text-reset" href="${autor_url}">${autor}</a>`);
 
     // events init
     $(".mkt-logout-button").click((e) => {
@@ -92,22 +145,25 @@ $(() => {
             location.replace("/login.html");
         });
     });
-    $(".mkt-menu-item").click((e) => {
-        let item_href = $(e.currentTarget).attr("href");
-        unset_active_menu_item($(".mkt-menu-item.active"));
-        set_active_menu_item($(`.mkt-menu-item[href='${item_href}']`));
+    $(".mkt-menu-item").each((i, e) => {
+        let item = $(e);
+        let item_href = item.attr("href");
+        let url_reference;
         switch (item_href) {
             case "#collection":
-                $("#menuModal").modal("hide");
-                $("#content-container").html(loading_spinner);
-                $("#content-container").load("/collection.html");
+                url_reference = "/collection.html";
                 break;
             case "#ranking":
-                $("#menuModal").modal("hide");
-                $("#content-container").html(loading_spinner);
-                $("#content-container").load("/ranking.html");
+                url_reference = "/ranking.html";
                 break;
         }
+        item.click((e) => {
+            unset_active_menu_item($(".mkt-menu-item.active"));
+            set_active_menu_item($(`.mkt-menu-item[href='${item_href}']`));
+            $("#menuModal").modal("hide");
+            $("#content-container").html(loading_spinner);
+            $("#content-container").load(url_reference);
+        });
     });
     addVisibilityChangeEvent($("#menu-div-sm")[0], (isVisible) => {
         if (!isVisible) {
@@ -138,7 +194,23 @@ $(() => {
                     }
                 }, 100); // 0.1 seconds
                 // load content
-                $("#content-container").load("/collection.html", () => {
+                let url_reference;
+                switch (location.hash) {
+                    case "#collection":
+                        url_reference = "/collection.html";
+                        set_active_menu_item($(`.mkt-menu-item[href='#collection']`));
+                        break;
+                    case "#ranking":
+                        url_reference = "/ranking.html";
+                        set_active_menu_item($(`.mkt-menu-item[href='#ranking']`));
+                        break;
+                    default:
+                        location.hash = "#collection";
+                        url_reference = "/collection.html";
+                        set_active_menu_item($(`.mkt-menu-item[href='#collection']`));
+                        break;
+                }
+                $("#content-container").load(url_reference, () => {
                     $("#spinner-row").hide();
                     $("#menu-div-sm").show();
                     $("#main-div").show();
