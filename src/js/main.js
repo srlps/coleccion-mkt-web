@@ -24,7 +24,7 @@ function select_array(type) {
     }
 }
 
-// info database
+// info database urls
 var elements_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=0";
 var circuits_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=1377585849";
 var objects_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=1554086270";
@@ -58,7 +58,7 @@ function select_background(tier) {
 }
 
 // utility functions
-function addVisibilityChangeEvent(element, handler) {
+function add_visibility_change_event(element, handler) {
     let observer = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
             handler(entry.intersectionRatio > 0);
@@ -68,6 +68,16 @@ function addVisibilityChangeEvent(element, handler) {
     });
     observer.observe(element);
 };
+
+function execute_after_condition(func, condition) {
+    setTimeout(() => {
+        if (condition()) {
+            func();
+        } else {
+            execute_after_condition(func, condition);
+        }
+    }, 100);
+}
 
 // main page functions
 function set_active_menu_item(item) {
@@ -165,7 +175,7 @@ $(() => {
             $("#content-container").load(url_reference);
         });
     });
-    addVisibilityChangeEvent($("#menu-div-sm")[0], (isVisible) => {
+    add_visibility_change_event($("#menu-div-sm")[0], (isVisible) => {
         if (!isVisible) {
             $("#menuModal").modal("hide");
         }
@@ -194,22 +204,16 @@ $(() => {
                     }
                 }, 100); // 0.1 seconds
                 // load content
-                let url_reference;
                 switch (location.hash) {
                     case "#collection":
-                        url_reference = "/collection.html";
-                        set_active_menu_item($(`.mkt-menu-item[href='#collection']`));
-                        break;
                     case "#ranking":
-                        url_reference = "/ranking.html";
-                        set_active_menu_item($(`.mkt-menu-item[href='#ranking']`));
                         break;
                     default:
                         location.hash = "#collection";
-                        url_reference = "/collection.html";
-                        set_active_menu_item($(`.mkt-menu-item[href='#collection']`));
                         break;
                 }
+                let url_reference = `/${location.hash.substr(1)}.html`;
+                set_active_menu_item($(`.mkt-menu-item[href='${location.hash}']`));
                 $("#content-container").load(url_reference, () => {
                     $("#spinner-row").hide();
                     $("#menu-div-sm").show();

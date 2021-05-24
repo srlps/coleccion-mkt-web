@@ -11,70 +11,54 @@ var info_database = {
     karts: []
 };
 
+var ranking_card_template = `
+<div class="mkt-card col mb-2 mb-md-4 px-2 px-md-3">
+    <div class="card mb-0">
+        <img data-src="{{background}}" class="mkt-element-img card-img lazyload" style="opacity:{{opacity}}" loading="lazy">
+        <div class="card-img-overlay p-2" style="display:flex;align-items:center;justify-content:center;">
+            <img data-src="{{object}}" class="mkt-element-img card-img lazyload"
+                style="max-height:100%;object-fit:contain;opacity:{{opacity}}" loading="lazy">
+        </div>
+    </div>
+    <div class="row m-0" style="height:40px;"">
+        <div class="col p-0 text-center">
+            <p class="h2 font-weight-bold text-white">{{num_circuits}} circuitos</p>
+        </div>
+    </div>
+</div>
+`;
+
+function select_database_array(type) {
+    switch (type) {
+        case 1:
+            return info_database.drivers;
+        case 2:
+            return info_database.karts;
+        case 3:
+            return info_database.gliders;
+    }
+}
+
+function sort_by_total_favored_circuits(array) {
+    array.sort((a, b) => {
+        let rank = b.total_favored_circuits - a.total_favored_circuits;
+        if (rank == 0) {
+            return a.pos - b.pos;
+        } else {
+            return rank;
+        }
+    })
+}
+
 function load_ranking(type) {
     $("#card-grid").empty();
-    $("#card-grid").sheetrock({
-        url: elements_url,
-        query: `select A, D, E where F = ${type} order by C asc`,
-        reset: true,
-        rowTemplate: (row) => {
-            let element = select_array(type).find((val, i, arr) => val.id == row.cells.id);
-            let level = element ? element.level : 0;
-            return collection_card_template
-                .replaceAll("{{id}}", row.cells.id)
-                .replaceAll("{{background}}", select_background(row.cells.tier))
-                .replaceAll("{{object}}", row.cells.image_url)
-                .replaceAll("{{opacity}}", level > 0 ? "1" : opacity_not_owned)
-                .replaceAll("{{level}}", level)
-                .replaceAll("{{minus-style}}", level > 0 ? plus_minus_enabled_style : plus_minus_disabled_style)
-                .replaceAll("{{minus-disabled}}", level > 0 ? "" : "disabled")
-                .replaceAll("{{plus-style}}", level < 7 ? plus_minus_enabled_style : plus_minus_disabled_style)
-                .replaceAll("{{plus-disabled}}", level < 7 ? "" : "disabled");
-        },
-        callback: (error, options, response) => {
-            $(".mkt-minus-button").click((e) => {
-                set_data_unsyncd();
-                let minus_button = $(e.currentTarget);
-                let card = minus_button.parents(".mkt-card");
-                let id = parseInt(card.attr("id"));
-                let element = select_array(type).find((val, i, arr) => val.id == id);
-                element.level -= 1;
-                card.find(".mkt-level").text(element.level);
-                if (element.level == 0) {
-                    disable_plus_minus_button(minus_button);
-                    card.find(".mkt-element-img").css("opacity", opacity_not_owned);
-                }
-                if (element.level == 6) {
-                    let plus_button = card.find(".mkt-plus-button");
-                    enable_plus_minus_button(plus_button);
-                }
-            });
-            $(".mkt-plus-button").click((e) => {
-                set_data_unsyncd();
-                let plus_button = $(e.currentTarget);
-                let card = plus_button.parents(".mkt-card");
-                let id = parseInt(card.attr("id"));
-                let element = select_array(type).find((val, i, arr) => val.id == id);
-                if (!element) {
-                    element = {
-                        id: id,
-                        level: 1
-                    };
-                    select_array(type).push(element);
-                } else {
-                    element.level += 1;
-                }
-                card.find(".mkt-level").text(element.level);
-                if (element.level == 7) {
-                    disable_plus_minus_button(plus_button);
-                }
-                if (element.level == 1) {
-                    let minus_button = card.find(".mkt-minus-button");
-                    enable_plus_minus_button(minus_button);
-                    card.find(".mkt-element-img").css("opacity", "1");
-                }
-            });
-        }
+    select_database_array(type).forEach((v, i, a) => {
+        $("#card-grid").append(ranking_card_template
+            .replaceAll("{{background}}", select_background(v.tier))
+            .replaceAll("{{object}}", v.image_url)
+            .replaceAll("{{opacity}}", "1")
+            .replaceAll("{{num_circuits}}", v.total_favored_circuits)
+        );
     });
 }
 
@@ -125,12 +109,107 @@ $(() => {
     });
 
     // load info database
+    let info_database_flags = [false, false, false];
+    // drivers
+    let drivers_flags = [false];
     sheetrock({
         url: elements_url,
-        query: `select A, D, E where F = 1`,
+        query: `select A, C, D, E where F = 1 order by A asc`,
         reset: true,
         callback: (error, options, response) => {
             info_database.drivers = response.rows.slice(1, -1).map((v, i, a) => v.cells);
+            // calculate favored circuits
+            sheetrock({
+                url: elements_circuits_url,
+                query: `select A, count(B) where A < 30000 group by A order by A asc`,
+                labels: ["element_id", "total_favored_circuits"],
+                reset: true,
+                callback: (error, options, response) => {
+                    ri = 1;
+                    for (let di = 0; di < info_database.drivers.length; di++) {
+                        if (info_database.drivers[di].id != response.rows[ri].cells.element_id) {
+                            continue;
+                        }
+                        info_database.drivers[di].total_favored_circuits = response.rows[ri].cells.total_favored_circuits;
+                        info_database.drivers[di].element_id = response.rows[ri].cells.element_id;
+                        ri++;
+                    }
+                    drivers_flags[0] = true;
+                }
+            });
+            execute_after_condition(() => {
+                sort_by_total_favored_circuits(info_database.drivers);
+                info_database_flags[0] = true;
+            }, () => drivers_flags.every((v, i, a) => v));
         }
     });
+    // karts
+    let karts_flags = [false];
+    sheetrock({
+        url: elements_url,
+        query: `select A, C, D, E where F = 2 order by A asc`,
+        reset: true,
+        callback: (error, options, response) => {
+            info_database.karts = response.rows.slice(1, -1).map((v, i, a) => v.cells);
+            // calculate favored circuits
+            sheetrock({
+                url: elements_circuits_url,
+                query: `select A, count(B) where A >= 70000 group by A order by A asc`,
+                labels: ["element_id", "total_favored_circuits"],
+                reset: true,
+                callback: (error, options, response) => {
+                    ri = 1;
+                    for (let di = 0; di < info_database.karts.length; di++) {
+                        if (info_database.karts[di].id != response.rows[ri].cells.element_id) {
+                            continue;
+                        }
+                        info_database.karts[di].total_favored_circuits = response.rows[ri].cells.total_favored_circuits;
+                        info_database.karts[di].element_id = response.rows[ri].cells.element_id;
+                        ri++;
+                    }
+                    karts_flags[0] = true;
+                }
+            });
+            execute_after_condition(() => {
+                sort_by_total_favored_circuits(info_database.karts);
+                info_database_flags[1] = true;
+            }, () => karts_flags.every((v, i, a) => v));
+        }
+    });
+    // gliders
+    let gliders_flags = [false];
+    sheetrock({
+        url: elements_url,
+        query: `select A, C, D, E where F = 3 order by A asc`,
+        reset: true,
+        callback: (error, options, response) => {
+            info_database.gliders = response.rows.slice(1, -1).map((v, i, a) => v.cells);
+            // calculate favored circuits
+            sheetrock({
+                url: elements_circuits_url,
+                query: `select A, count(B) where A >= 30000 and A < 70000 group by A order by A asc`,
+                labels: ["element_id", "total_favored_circuits"],
+                reset: true,
+                callback: (error, options, response) => {
+                    ri = 1;
+                    for (let di = 0; di < info_database.gliders.length; di++) {
+                        if (info_database.gliders[di].id != response.rows[ri].cells.element_id) {
+                            continue;
+                        }
+                        info_database.gliders[di].total_favored_circuits = response.rows[ri].cells.total_favored_circuits;
+                        info_database.gliders[di].element_id = response.rows[ri].cells.element_id;
+                        ri++;
+                    }
+                    gliders_flags[0] = true;
+                }
+            });
+            execute_after_condition(() => {
+                sort_by_total_favored_circuits(info_database.gliders);
+                info_database_flags[2] = true;
+            }, () => gliders_flags.every((v, i, a) => v));
+        }
+    });
+
+    // load content
+    execute_after_condition(() => load_ranking(1), () => info_database_flags.every((v, i, a) => v));
 });
