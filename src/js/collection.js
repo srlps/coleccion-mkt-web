@@ -1,4 +1,3 @@
-var opacity_not_owned = "0.4";
 var plus_minus_enabled_style = "btn-info";
 var plus_minus_disabled_style = "btn-secondary";
 

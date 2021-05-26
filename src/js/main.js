@@ -48,6 +48,7 @@ function sync_user_data() {
 }
 
 // elements backgrounds
+var opacity_not_owned = "0.4";
 var background_normal = "https://mario.wiki.gallery/images/2/29/MKT_Icon_Normal.png";
 var background_super = "https://mario.wiki.gallery/images/a/a6/MKT_Icon_Rare.png";
 var background_highend = "https://mario.wiki.gallery/images/8/8f/MKT_Icon_HighEnd.png";
