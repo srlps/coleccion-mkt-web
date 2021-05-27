@@ -1,6 +1,6 @@
 // metadata variables
 var metadata_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=928955547";
-var version = "1.1.1";
+var version = "1.2.1";
 var autor = "srlps";
 var autor_url = "https://github.com/srlps";
 
@@ -153,21 +153,13 @@ $(() => {
     // events init
     $(".mkt-logout-button").click((e) => {
         firebase.auth().signOut().then(() => {
-            location.replace("/login.html");
+            location.replace("/login");
         });
     });
     $(".mkt-menu-item").each((i, e) => {
         let item = $(e);
         let item_href = item.attr("href");
-        let url_reference;
-        switch (item_href) {
-            case "#collection":
-                url_reference = "/collection.html";
-                break;
-            case "#ranking":
-                url_reference = "/ranking.html";
-                break;
-        }
+        let url_reference = item_href.replace("#", "/");
         item.click((e) => {
             unset_active_menu_item($(".mkt-menu-item.active"));
             set_active_menu_item($(`.mkt-menu-item[href='${item_href}']`));
@@ -213,7 +205,7 @@ $(() => {
                         location.hash = "#collection";
                         break;
                 }
-                let url_reference = `/${location.hash.substr(1)}.html`;
+                let url_reference = location.hash.replace("#", "/");
                 set_active_menu_item($(`.mkt-menu-item[href='${location.hash}']`));
                 $("#content-container").load(url_reference, () => {
                     $("#spinner-row").hide();
@@ -223,7 +215,7 @@ $(() => {
             });
         }
         else {
-            location.replace("/login.html");
+            location.replace("/login");
         }
     });
 });
