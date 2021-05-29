@@ -276,7 +276,15 @@ $(() => {
                 execute_after_condition(() => {
                     let table = info_database.getSchema().table('elements');
                     return info_database.insertOrReplace().into(table).values(
-                        elements_list.map((v, i, a) => table.createRow(v))
+                        elements_list.map((v, i, a) => table.createRow({
+                            'id': v.id,
+                            'name': v.name,
+                            'pos': parseInt(v.pos),
+                            'tier': v.tier,
+                            'image_url': v.image_url,
+                            'type': v.type,
+                            'object_id': v.object_id
+                        }))
                     ).exec().then(() => loaded_flags[0] = true);
                 }, () => elements_list);
                 execute_after_condition(() => {

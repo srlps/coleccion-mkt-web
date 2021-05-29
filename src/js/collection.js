@@ -44,25 +44,27 @@ function enable_plus_minus_button(button) {
 
 function load_collection(type) {
     $("#card-grid").empty();
-    $("#card-grid").sheetrock({
-        url: elements_url,
-        query: `select A, D, E where F = ${type} order by C asc`,
-        reset: true,
-        rowTemplate: (row) => {
-            let element = select_array(type).find((val, i, arr) => val.id == row.cells.id);
-            let level = element ? element.level : 0;
-            return collection_card_template
-                .replaceAll("{{id}}", row.cells.id)
-                .replaceAll("{{background}}", select_background(row.cells.tier))
-                .replaceAll("{{object}}", row.cells.image_url)
-                .replaceAll("{{opacity}}", level > 0 ? "1" : opacity_not_owned)
-                .replaceAll("{{level}}", level)
-                .replaceAll("{{minus-style}}", level > 0 ? plus_minus_enabled_style : plus_minus_disabled_style)
-                .replaceAll("{{minus-disabled}}", level > 0 ? "" : "disabled")
-                .replaceAll("{{plus-style}}", level < 7 ? plus_minus_enabled_style : plus_minus_disabled_style)
-                .replaceAll("{{plus-disabled}}", level < 7 ? "" : "disabled");
-        },
-        callback: (error, options, response) => {
+    let element_table = info_database.getSchema().table('elements');
+    info_database.select(element_table.id, element_table.tier, element_table.image_url)
+        .from(element_table)
+        .where(element_table.type.eq(1))
+        .orderBy(element_table.pos, lf.Order.ASC)
+        .exec().then(rows => {
+            rows.forEach((rv, ri, ra) => {
+                let element = select_array(type).find((uv, ui, ua) => uv.id == rv.id);
+                let level = element ? element.level : 0;
+                $("#card-grid").append(collection_card_template
+                    .replaceAll("{{id}}", rv.id)
+                    .replaceAll("{{background}}", select_background(rv.tier))
+                    .replaceAll("{{object}}", rv.image_url)
+                    .replaceAll("{{opacity}}", level > 0 ? "1" : opacity_not_owned)
+                    .replaceAll("{{level}}", level)
+                    .replaceAll("{{minus-style}}", level > 0 ? plus_minus_enabled_style : plus_minus_disabled_style)
+                    .replaceAll("{{minus-disabled}}", level > 0 ? "" : "disabled")
+                    .replaceAll("{{plus-style}}", level < 7 ? plus_minus_enabled_style : plus_minus_disabled_style)
+                    .replaceAll("{{plus-disabled}}", level < 7 ? "" : "disabled")
+                );
+            });
             $(".mkt-minus-button").click((e) => {
                 set_data_unsyncd();
                 let minus_button = $(e.currentTarget);
@@ -105,8 +107,7 @@ function load_collection(type) {
                     card.find(".mkt-element-img").css("opacity", "1");
                 }
             });
-        }
-    });
+        });
 }
 
 $(() => {
