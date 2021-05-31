@@ -44,11 +44,11 @@ function enable_plus_minus_button(button) {
 
 function load_collection(type) {
     $("#card-grid").empty();
-    let element_table = info_database.getSchema().table('elements');
-    info_database.select(element_table.id, element_table.tier, element_table.image_url)
-        .from(element_table)
-        .where(element_table.type.eq(1))
-        .orderBy(element_table.pos, lf.Order.ASC)
+    let e = info_database.getSchema().table('elements');
+    info_database.select(e.id, e.tier, e.image_url)
+        .from(e)
+        .where(e.type.eq(type))
+        .orderBy(e.pos, lf.Order.ASC)
         .exec().then(rows => {
             rows.forEach((rv, ri, ra) => {
                 let element = select_array(type).find((uv, ui, ua) => uv.id == rv.id);

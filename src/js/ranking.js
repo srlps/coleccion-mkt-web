@@ -5,12 +5,6 @@ var filters = {
     only_league_circuits: false
 };
 
-var info_database = {
-    drivers: [],
-    gliders: [],
-    karts: []
-};
-
 var ranking_card_template = `
 <div class="mkt-card col mb-2 mb-md-4 px-2 px-md-3">
     <div class="card mb-0">
@@ -28,42 +22,28 @@ var ranking_card_template = `
 </div>
 `;
 
-function select_database_array(type) {
-    switch (type) {
-        case 1:
-            return info_database.drivers;
-        case 2:
-            return info_database.karts;
-        case 3:
-            return info_database.gliders;
-    }
-}
-
-function sort_by_id_asc(array) {
-    array.sort((a, b) => a.id - b.id)
-}
-
-function sort_by_total_favored_circuits_desc(array) {
-    array.sort((a, b) => {
-        let rank = b.total_favored_circuits - a.total_favored_circuits;
-        if (rank == 0) {
-            return a.pos - b.pos;
-        } else {
-            return rank;
-        }
-    })
-}
-
 function load_ranking(type) {
     $("#card-grid").empty();
-    select_database_array(type).forEach((v, i, a) => {
-        $("#card-grid").append(ranking_card_template
-            .replaceAll("{{background}}", select_background(v.tier))
-            .replaceAll("{{object}}", v.image_url)
-            .replaceAll("{{opacity}}", v.level > 0 ? "1" : opacity_not_owned)
-            .replaceAll("{{num_circuits}}", v.total_favored_circuits)
-        );
-    });
+    let e = info_database.getSchema().table('elements');
+    let ec = info_database.getSchema().table('elements_circuits');
+    info_database.select(e.id, e.pos, e.tier, e.image_url, lf.fn.count(ec.circuit_id).as('total_favored_circuits'))
+        .from(e).innerJoin(ec, e.id.eq(ec.element_id))
+        .where(e.type.eq(type))
+        .groupBy(e.id)
+        .orderBy(lf.fn.count(ec.circuit_id), lf.Order.DESC)
+        .orderBy(e.pos, lf.Order.ASC)
+        .exec().then(rows => {
+            rows.forEach((rv, ri, ra) => {
+                let element = select_array(type).find((uv, ui, ua) => uv.id == rv.elements.id);
+                let level = element ? element.level : 0;
+                $("#card-grid").append(ranking_card_template
+                    .replaceAll("{{background}}", select_background(rv.elements.tier))
+                    .replaceAll("{{object}}", rv.elements.image_url)
+                    .replaceAll("{{opacity}}", level > 0 ? "1" : opacity_not_owned)
+                    .replaceAll("{{num_circuits}}", rv.total_favored_circuits)
+                );
+            });
+        });
 }
 
 $(() => {
@@ -112,147 +92,6 @@ $(() => {
         }
     });
 
-    // load info database
-    let info_database_flags = [false, false, false];
-    // drivers
-    let drivers_flags = [false];
-    sheetrock({
-        url: elements_url,
-        query: `select A, C, D, E where F = 1 order by A asc`,
-        reset: true,
-        callback: (error, options, response) => {
-            info_database.drivers = response.rows.slice(1, -1).map((v, i, a) => v.cells);
-            // calculate favored circuits
-            sheetrock({
-                url: elements_circuits_url,
-                query: `select A, count(B) where A < 30000 group by A order by A asc`,
-                labels: ["element_id", "total_favored_circuits"],
-                reset: true,
-                callback: (error, options, response) => {
-                    let ri = 1;
-                    for (let di = 0; di < info_database.drivers.length; di++) {
-                        if (info_database.drivers[di].id != response.rows[ri].cells.element_id) {
-                            continue;
-                        }
-                        info_database.drivers[di].total_favored_circuits = response.rows[ri].cells.total_favored_circuits;
-                        ri++;
-                    }
-                    drivers_flags[0] = true;
-                }
-            });
-            // calculate owned
-            sort_by_id_asc(userContent.drivers);
-            let ci = 0;
-            for (let di = 0; di < info_database.drivers.length; di++) {
-                if (ci >= userContent.drivers.length || info_database.drivers[di].id != userContent.drivers[ci].id) {
-                    info_database.drivers[di].level = 0;
-                    continue;
-                }
-                info_database.drivers[di].level = userContent.drivers[ci].level;
-                ci++;
-            }
-            // post processing
-            execute_after_condition(() => {
-                // sort
-                sort_by_total_favored_circuits_desc(info_database.drivers);
-                info_database_flags[0] = true;
-            }, () => drivers_flags.every((v, i, a) => v));
-        }
-    });
-    // karts
-    let karts_flags = [false];
-    sheetrock({
-        url: elements_url,
-        query: `select A, C, D, E where F = 2 order by A asc`,
-        reset: true,
-        callback: (error, options, response) => {
-            info_database.karts = response.rows.slice(1, -1).map((v, i, a) => v.cells);
-            // calculate favored circuits
-            sheetrock({
-                url: elements_circuits_url,
-                query: `select A, count(B) where A >= 70000 group by A order by A asc`,
-                labels: ["element_id", "total_favored_circuits"],
-                reset: true,
-                callback: (error, options, response) => {
-                    let ri = 1;
-                    for (let di = 0; di < info_database.karts.length; di++) {
-                        if (info_database.karts[di].id != response.rows[ri].cells.element_id) {
-                            continue;
-                        }
-                        info_database.karts[di].total_favored_circuits = response.rows[ri].cells.total_favored_circuits;
-                        ri++;
-                    }
-                    karts_flags[0] = true;
-                }
-            });
-            // calculate owned
-            sort_by_id_asc(userContent.karts);
-            let ci = 0;
-            for (let di = 0; di < info_database.karts.length; di++) {
-                if (ci >= userContent.karts.length || info_database.karts[di].id != userContent.karts[ci].id) {
-                    info_database.karts[di].level = 0;
-                    continue;
-                }
-                info_database.karts[di].level = userContent.karts[ci].level;
-                ci++;
-            }
-            // post processing
-            execute_after_condition(() => {
-                // sort
-                sort_by_total_favored_circuits_desc(info_database.karts);
-                info_database_flags[1] = true;
-            }, () => karts_flags.every((v, i, a) => v));
-        }
-    });
-    // gliders
-    let gliders_flags = [false];
-    sheetrock({
-        url: elements_url,
-        query: `select A, C, D, E where F = 3 order by A asc`,
-        reset: true,
-        callback: (error, options, response) => {
-            info_database.gliders = response.rows.slice(1, -1).map((v, i, a) => v.cells);
-            // calculate favored circuits
-            sheetrock({
-                url: elements_circuits_url,
-                query: `select A, count(B) where A >= 30000 and A < 70000 group by A order by A asc`,
-                labels: ["element_id", "total_favored_circuits"],
-                reset: true,
-                callback: (error, options, response) => {
-                    let ri = 1;
-                    for (let di = 0; di < info_database.gliders.length; di++) {
-                        if (info_database.gliders[di].id != response.rows[ri].cells.element_id) {
-                            continue;
-                        }
-                        info_database.gliders[di].total_favored_circuits = response.rows[ri].cells.total_favored_circuits;
-                        ri++;
-                    }
-                    gliders_flags[0] = true;
-                }
-            });
-            // calculate owned
-            sort_by_id_asc(userContent.gliders);
-            let ci = 0;
-            for (let di = 0; di < info_database.gliders.length; di++) {
-                if (ci >= userContent.gliders.length || info_database.gliders[di].id != userContent.gliders[ci].id) {
-                    info_database.gliders[di].level = 0;
-                    continue;
-                }
-                info_database.gliders[di].level = userContent.gliders[ci].level;
-                ci++;
-            }
-            // post processing
-            execute_after_condition(() => {
-                // sort
-                sort_by_total_favored_circuits_desc(info_database.gliders);
-                info_database_flags[2] = true;
-            }, () => gliders_flags.every((v, i, a) => v));
-        }
-    });
-
     // load content
-    execute_after_condition(
-        () => load_ranking(1),
-        () => info_database_flags.every((v, i, a) => v)
-    );
+    load_ranking(1);
 });
