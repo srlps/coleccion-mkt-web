@@ -11,7 +11,8 @@ El proyecto usa las siguientes herramientas:
 - BLK Design System React (El tema del sitio en css)
 - Firebase (auth y firestore)
 - Sheetrock (lectura de Google Sheets como sql)
-- Lazysizes (Cache y lazy load para imágenes)
+- Lazysizes (cache y lazy load para imágenes)
+- Lovefield (base de datos relacional en memoria)
 
 Las imagenes son obtenidas de la wiki de los juegos de mario [aquí](https://www.mariowiki.com/Gallery:Mario_Kart_Tour_sprites_and_models).
 
