@@ -216,7 +216,7 @@ $(() => {
                 let circuits_list;
                 sheetrock({
                     url: circuits_url,
-                    query: `select A, B, C, D`,
+                    query: `select A, B, C, D, E`,
                     reset: true,
                     callback: (error, options, response) => {
                         circuits_list = response.rows.slice(1, -1).map((v, i, a) => v.cells);
@@ -256,6 +256,7 @@ $(() => {
                     addColumn('name', lf.Type.STRING).
                     addColumn('league', lf.Type.INTEGER).
                     addColumn('pos', lf.Type.INTEGER).
+                    addColumn('mkt', lf.Type.BOOLEAN).
                     addPrimaryKey(['id']);
                 schemaBuilder.createTable('objects').
                     addColumn('id', lf.Type.INTEGER).
@@ -290,7 +291,13 @@ $(() => {
                 execute_after_condition(() => {
                     let table = info_database.getSchema().table('circuits');
                     return info_database.insertOrReplace().into(table).values(
-                        circuits_list.map((v, i, a) => table.createRow(v))
+                        circuits_list.map((v, i, a) => table.createRow({
+                            'id': v.id,
+                            'name': v.name,
+                            'league': parseInt(v.league),
+                            'pos': parseInt(v.pos),
+                            'mkt': v.mkt
+                        }))
                     ).exec().then(() => loaded_flags[1] = true);
                 }, () => circuits_list);
                 execute_after_condition(() => {
@@ -302,7 +309,11 @@ $(() => {
                 execute_after_condition(() => {
                     let table = info_database.getSchema().table('elements_circuits');
                     return info_database.insertOrReplace().into(table).values(
-                        elements_circuits_list.map((v, i, a) => table.createRow(v))
+                        elements_circuits_list.map((v, i, a) => table.createRow({
+                            'element_id': parseInt(v.element_id),
+                            'circuit_id': parseInt(v.circuit_id),
+                            'level': Math.max(parseInt(v.level), 1)
+                        }))
                     ).exec().then(() => loaded_flags[3] = true);
                 }, () => elements_circuits_list);
 
