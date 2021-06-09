@@ -55,7 +55,7 @@ function load_collection(type) {
                 let level = element ? element.level : 0;
                 $("#card-grid").append(collection_card_template
                     .replaceAll("{{id}}", rv.id)
-                    .replaceAll("{{background}}", select_background(rv.tier))
+                    .replaceAll("{{background}}", select_background(rv.tier, type))
                     .replaceAll("{{object}}", rv.image_url)
                     .replaceAll("{{opacity}}", level > 0 ? "1" : opacity_not_owned)
                     .replaceAll("{{level}}", level)

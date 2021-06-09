@@ -89,7 +89,7 @@ function load_ranking(type) {
             let should_show = !filters.exclude_owned || level == 0;
             if (should_show) {
                 $("#card-grid").append(ranking_card_template
-                    .replaceAll("{{background}}", select_background(rv.elements.tier))
+                    .replaceAll("{{background}}", select_background(rv.elements.tier, type))
                     .replaceAll("{{object}}", rv.elements.image_url)
                     .replaceAll("{{opacity}}", level > 0 ? "1" : opacity_not_owned)
                     .replaceAll("{{num_circuits}}", rv.favored_circuits)

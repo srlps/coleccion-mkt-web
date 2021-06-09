@@ -50,14 +50,20 @@ function sync_user_data() {
 }
 
 // elements backgrounds
-var opacity_not_owned = "0.4";
-var background_normal = "https://mario.wiki.gallery/images/2/29/MKT_Icon_Normal.png";
-var background_super = "https://mario.wiki.gallery/images/a/a6/MKT_Icon_Rare.png";
-var background_highend = "https://mario.wiki.gallery/images/8/8f/MKT_Icon_HighEnd.png";
-var backgrounds = [background_normal, background_super, background_highend];
+var opacity_not_owned = "0.5";
+var bg_driver_normal_v = "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/backgrounds%2Fdriver_normal_v.png?alt=media&token=f25a2785-b16f-4a9b-b001-1d31c53cb7fa";
+var bg_driver_super_v = "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/backgrounds%2Fdriver_super_v.png?alt=media&token=aaa5f10d-3b60-4e28-a9da-b1bd1e8369af";
+var bg_driver_highend_v = "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/backgrounds%2Fdriver_highend_v.png?alt=media&token=d454a4e4-4c6c-4e6d-be32-e67cc9bd0abc";
+var bg_garage_normal_v = "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/backgrounds%2Fgarage_normal_v.png?alt=media&token=92713e8d-1cbd-4b33-9499-a0a7c9bf3278";
+var bg_garage_super_v = "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/backgrounds%2Fgarage_super_v.png?alt=media&token=8f0c347a-def3-4543-8644-6510d2527fdf";
+var bg_garage_highend_v = "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/backgrounds%2Fgarage_highend_v.png?alt=media&token=b0cbd390-0bf6-464e-8ff4-d3e2f5ccacae";
+var backgrounds = [bg_driver_normal_v, bg_driver_super_v, bg_driver_highend_v,
+    bg_garage_normal_v, bg_garage_super_v, bg_garage_highend_v];
 
-function select_background(tier) {
-    return backgrounds[tier - 1];
+function select_background(tier, type) {
+    let i = type == 1 ? 0 : 3;
+    i += tier - 1;
+    return backgrounds[i];
 }
 
 // utility functions
@@ -207,37 +213,37 @@ $(() => {
                 let elements_list;
                 sheetrock({
                     url: elements_url,
-                    query: `select A, B, C, D, E, F, G`,
+                    query: 'select A, B, C, D, E, F, G',
                     reset: true,
                     callback: (error, options, response) => {
-                        elements_list = response.rows.slice(1, -1).map((v, i, a) => v.cells);
+                        elements_list = response.rows.slice(1).map((v, i, a) => v.cells);
                     }
                 });
                 let circuits_list;
                 sheetrock({
                     url: circuits_url,
-                    query: `select A, B, C, D, E`,
+                    query: 'select A, B, C, D, E',
                     reset: true,
                     callback: (error, options, response) => {
-                        circuits_list = response.rows.slice(1, -1).map((v, i, a) => v.cells);
+                        circuits_list = response.rows.slice(1).map((v, i, a) => v.cells);
                     }
                 });
                 let objects_list;
                 sheetrock({
                     url: objects_url,
-                    query: `select A, B, C`,
+                    query: 'select A, B, C',
                     reset: true,
                     callback: (error, options, response) => {
-                        objects_list = response.rows.slice(1, -1).map((v, i, a) => v.cells);
+                        objects_list = response.rows.slice(1).map((v, i, a) => v.cells);
                     }
                 });
                 let elements_circuits_list;
                 sheetrock({
                     url: elements_circuits_url,
-                    query: `select A, B, C`,
+                    query: 'select A, B, C',
                     reset: true,
                     callback: (error, options, response) => {
-                        elements_circuits_list = response.rows.slice(1, -1).map((v, i, a) => v.cells);
+                        elements_circuits_list = response.rows.slice(1).map((v, i, a) => v.cells);
                     }
                 });
 
