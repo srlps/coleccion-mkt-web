@@ -1,6 +1,6 @@
 // metadata variables
 var metadata_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=928955547";
-var version = "1.2.2";
+var version = "1.2.3";
 var autor = "srlps";
 var autor_url = "https://github.com/srlps";
 
