@@ -1,8 +1,6 @@
 // metadata variables
 var metadata_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=928955547";
-var version = "1.2.3";
-var autor = "srlps";
-var autor_url = "https://github.com/srlps";
+var changelog;
 
 // persistence
 var currentUser;
@@ -118,6 +116,19 @@ var metadata_template = `
 <p style="color:rgba(34,42,66,0.75) !important;">{{content}}</p>
 `;
 
+var changelog_template = `
+<div class="row">
+    <div class="col px-0">
+        <h4 style="color:var(--dark)">Versión {{version}}</h4>
+    </div>
+</div>
+<div class="row">
+    <div class="col px-0">
+        <ul>{{changes}}</ul>
+    </div>
+</div>
+`;
+
 // main page init
 $(() => {
     // ajax init
@@ -157,11 +168,13 @@ $(() => {
             $(".mkt-metadata").html(response.html);
         }
     });
-    $(".mkt-version").text(`Versión: ${version}`);
-    $(".mkt-autor").html(`Autor: <a class="text-reset" href="${autor_url}">${autor}</a>`);
+    $.get("/raw/changelog.json").done(data => {
+        changelog = data;
+        $(".mkt-version").text(`Versión: ${changelog.content[0].version}`);
+    });
 
     // events init
-    $(".mkt-logout-button").click((e) => {
+    $(".mkt-logout-button").click(e => {
         firebase.auth().signOut().then(() => {
             location.replace("/login");
         });
@@ -178,7 +191,18 @@ $(() => {
             $("#content-container").load(url_reference);
         });
     });
-    add_visibility_change_event($("#menu-div-sm")[0], (isVisible) => {
+    $('.mkt-changelog').click(e => {
+        e.preventDefault();
+        $('#popup-modal-title').text('Changelog');
+        $('#popup-modal-body').html(`<div class="container-fluid">${changelog.content.map(e => changelog_template
+            .replaceAll('{{version}}', e.version)
+            .replaceAll('{{changes}}', e.changes.map(
+                change_element => `<li style="color:var(--dark)">${change_element}</li>`).join(""))
+        ).join("")}</div>`);
+        $("#menuModal").modal("hide");
+        $('#popupModal').modal('show');
+    });
+    add_visibility_change_event($("#menu-div-sm")[0], isVisible => {
         if (!isVisible) {
             $("#menuModal").modal("hide");
         }

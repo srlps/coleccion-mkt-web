@@ -43,15 +43,30 @@
 
 <body>
 
+  <div class="modal" id="popupModal" tabindex="-1" aria-labelledby="popupModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" style="transform: none !important;">
+      <div class="modal-content">
+        <div class="modal-header bg-primary align-items-center py-3">
+          <h3 class="modal-title text-secondary" id="popup-modal-title"></h3>
+          <button type="button" class="close text-darker" data-dismiss="modal" aria-label="Close"
+            style="position:inherit;">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body px-3" id="popup-modal-body"> </div>
+      </div>
+    </div>
+  </div>
+
   <div class="row mt-5" id="spinner-row">
     <div class="col text-center">
       <i class="fas fa-spinner fa-5x fa-spin"></i>
     </div>
   </div>
 
-  <div class="modal mkt-menu-modal-fade" id="menuModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+  <div class="modal mkt-menu-modal-fade" id="menuModal" tabindex="-1" aria-labelledby="menuModalLabel"
     aria-hidden="true">
-    <div class="modal-dialog modal-sm position-fixed" style="display:contents;">
+    <div class="modal-dialog modal-sm modal-dialog-scrollable position-fixed" style="display:contents;">
       <div class="modal-content">
         <div class="modal-body bg-primary p-1">
           <div class="list-group border-0">
@@ -81,7 +96,10 @@
             <div class="dropdown-divider"></div>
             <div class="px-3" style="font-size:0.85em;">
               <p class="mkt-version" style="color:rgba(34,42,66,0.65) !important;"></p>
-              <p class="mkt-autor" style="color:rgba(34,42,66,0.65) !important;"></p>
+              <p style="color:rgba(34,42,66,0.65) !important;"><a class="mkt-changelog text-reset" href="">Changelog</a>
+              </p>
+              <p style="color:rgba(34,42,66,0.65) !important;">Autor: <a class="text-reset"
+                  href="https://github.com/srlps" target="_blank">srlps</a></p>
             </div>
           </div>
         </div>
@@ -133,7 +151,9 @@
         <div class="dropdown-divider"></div>
         <div class="px-3" style="font-size:0.85em;">
           <p class="mkt-version" style="color:rgba(34,42,66,0.65) !important;"></p>
-          <p class="mkt-autor" style="color:rgba(34,42,66,0.65) !important;"></p>
+          <p style="color:rgba(34,42,66,0.65) !important;"><a class="mkt-changelog text-reset" href="">Changelog</a></p>
+          <p style="color:rgba(34,42,66,0.65) !important;">Autor: <a class="text-reset" href="https://github.com/srlps"
+              target="_blank">srlps</a></p>
         </div>
       </div>
     </div>
