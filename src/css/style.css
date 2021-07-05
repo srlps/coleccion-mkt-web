@@ -35,6 +35,17 @@
     transform: translateX(0%);
 }
 
+.mkt-changelog-new {
+    color: black !important;
+    font-weight: bold;
+    text-shadow: 0px 0px 5px var(--yellow)
+}
+
+.mkt-changelog-icon {
+    color: black !important;
+    text-shadow: 0px 0px 5px var(--yellow)
+}
+
 .dropdown-menu:before {
     display: none !important;
 }

@@ -44,6 +44,8 @@ function sync_user_data() {
     if (!dataSyncd) {
         dataSyncd = true;
         userContentRef.set(userContent).then(() => $(".mkt-sync-icon").hide());
+    } else {
+        idleTime = 20;
     }
 }
 
@@ -101,6 +103,20 @@ function unset_active_menu_item(item) {
     item.removeAttr("aria-current");
     item.removeAttr("tabindex");
     item.removeAttr("aria-disabled");
+}
+
+function set_read_changelog() {
+    let changelog_element = $('.mkt-changelog');
+    changelog_element.removeClass('mkt-changelog-new');
+    changelog_element.addClass('text-reset');
+    $('.mkt-changelog-icon').hide();
+}
+
+function set_unread_changelog() {
+    let changelog_element = $('.mkt-changelog');
+    changelog_element.removeClass('text-reset');
+    changelog_element.addClass('mkt-changelog-new');
+    $('.mkt-changelog-icon').show();
 }
 
 // main page templates
@@ -170,7 +186,7 @@ $(() => {
     });
     $.get("/raw/changelog.json").done(data => {
         changelog = data;
-        $(".mkt-version").text(`Versión: ${changelog.content[0].version}`);
+        $('.mkt-version').text(`Versión: ${changelog.content[0].version}`);
     });
 
     // events init
@@ -190,17 +206,6 @@ $(() => {
             $("#content-container").html(loading_spinner);
             $("#content-container").load(url_reference);
         });
-    });
-    $('.mkt-changelog').click(e => {
-        e.preventDefault();
-        $('#popup-modal-title').text('Changelog');
-        $('#popup-modal-body').html(`<div class="container-fluid">${changelog.content.map(e => changelog_template
-            .replaceAll('{{version}}', e.version)
-            .replaceAll('{{changes}}', e.changes.map(
-                change_element => `<li style="color:var(--dark)">${change_element}</li>`).join(""))
-        ).join("")}</div>`);
-        $("#menuModal").modal("hide");
-        $('#popupModal').modal('show');
     });
     add_visibility_change_event($("#menu-div-sm")[0], isVisible => {
         if (!isVisible) {
@@ -232,6 +237,31 @@ $(() => {
                         sync_user_data();
                     }
                 }, 100); // 0.1 seconds
+
+                // show changelog read status
+                execute_after_condition(() => {
+                    if (!userContent.changelog_read_version
+                        || userContent.changelog_read_version != changelog.content[0].version) {
+                        set_unread_changelog();
+                    }
+                    $('.mkt-changelog').click(e => {
+                        e.preventDefault();
+                        if (userContent.changelog_read_version != changelog.content[0].version) {
+                            set_read_changelog();
+                            userContent.changelog_read_version = changelog.content[0].version;
+                            set_data_unsyncd();
+                        }
+                        $('#popup-modal-title').text('Changelog');
+                        $('#popup-modal-body').html(`<div class="container-fluid">${changelog.content.map(e =>
+                            changelog_template
+                                .replaceAll('{{version}}', e.version)
+                                .replaceAll('{{changes}}', e.changes.map(
+                                    change_element => `<li style="color:var(--dark)">${change_element}</li>`).join(""))
+                        ).join("")}</div>`);
+                        $("#menuModal").modal("hide");
+                        $('#popupModal').modal('show');
+                    })
+                }, () => changelog);
 
                 // load info database
                 let elements_list;
