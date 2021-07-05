@@ -10,9 +10,9 @@ var filters = {
 var ranking_card_template = `
 <div class="mkt-card col mb-2 mb-md-4 px-2 px-md-3">
     <div class="card mb-0">
-        <img data-src="{{background}}" class="mkt-element-img card-img lazyload" style="opacity:{{opacity}}" loading="lazy">
+        <img data-src="{{background}}" class="card-img lazyload" style="opacity:{{opacity}}" loading="lazy">
         <div class="card-img-overlay p-2" style="display:flex;align-items:center;justify-content:center;">
-            <img data-src="{{object}}" class="mkt-element-img card-img lazyload"
+            <img data-src="{{object}}" class="card-img lazyload"
                 style="max-height:100%;object-fit:contain;opacity:{{opacity}}" loading="lazy">
         </div>
     </div>

@@ -3,11 +3,16 @@ var plus_minus_disabled_style = "btn-secondary";
 
 var collection_card_template = `
 <div class="mkt-card col mb-2 mb-md-4 px-2 px-md-3" id="{{id}}">
-    <div class="card mb-0">
-        <img data-src="{{background}}" class="mkt-element-img card-img lazyload" style="opacity:{{opacity}}" loading="lazy">
-        <div class="card-img-overlay p-2" style="display:flex;align-items:center;justify-content:center;">
-            <img data-src="{{object}}" class="mkt-element-img card-img lazyload"
-                style="max-height:100%;object-fit:contain;opacity:{{opacity}}" loading="lazy">
+    <div class="card mb-1" style="position:relative">
+        <img data-src="{{background}}" class="mkt-card-img mkt-background-img card-img lazyload" style="opacity:{{opacity}}"
+            loading="lazy">
+        <div class="mkt-element-div" style="display:flex">
+            <img data-src="{{element}}" class="mkt-card-img mkt-element-img card-img lazyload" style="opacity:{{opacity}}"
+                loading="lazy">
+        </div>
+        <div class="mkt-object-div" style="display:flex">
+            <img data-src="{{object}}" class="mkt-card-img mkt-object-img card-img lazyload" style="opacity:{{opacity}}"
+                loading="lazy">
         </div>
     </div>
     <div class="row m-0" style="height:40px;"">
@@ -45,18 +50,20 @@ function enable_plus_minus_button(button) {
 function load_collection(type) {
     $("#card-grid").empty();
     let e = info_database.getSchema().table('elements');
-    info_database.select(e.id, e.tier, e.image_url)
-        .from(e)
+    let o = info_database.getSchema().table('objects');
+    info_database.select(e.id, e.tier, e.image_url, o.image_url)
+        .from(e).innerJoin(o, o.id.eq(e.object_id))
         .where(e.type.eq(type))
         .orderBy(e.pos, lf.Order.ASC)
         .exec().then(rows => {
             rows.forEach((rv, ri, ra) => {
-                let element = select_array(type).find((uv, ui, ua) => uv.id == rv.id);
+                let element = select_array(type).find((uv, ui, ua) => uv.id == rv.elements.id);
                 let level = element ? element.level : 0;
                 $("#card-grid").append(collection_card_template
-                    .replaceAll("{{id}}", rv.id)
-                    .replaceAll("{{background}}", select_background(rv.tier, type))
-                    .replaceAll("{{object}}", rv.image_url)
+                    .replaceAll("{{id}}", rv.elements.id)
+                    .replaceAll("{{background}}", select_background(rv.elements.tier, type))
+                    .replaceAll("{{element}}", rv.elements.image_url)
+                    .replaceAll("{{object}}", rv.objects.image_url)
                     .replaceAll("{{opacity}}", level > 0 ? "1" : opacity_not_owned)
                     .replaceAll("{{level}}", level)
                     .replaceAll("{{minus-style}}", level > 0 ? plus_minus_enabled_style : plus_minus_disabled_style)
@@ -75,7 +82,7 @@ function load_collection(type) {
                 card.find(".mkt-level").text(element.level);
                 if (element.level == 0) {
                     disable_plus_minus_button(minus_button);
-                    card.find(".mkt-element-img").css("opacity", opacity_not_owned);
+                    card.find(".mkt-card-img").css("opacity", opacity_not_owned);
                 }
                 if (element.level == 6) {
                     let plus_button = card.find(".mkt-plus-button");
@@ -104,7 +111,7 @@ function load_collection(type) {
                 if (element.level == 1) {
                     let minus_button = card.find(".mkt-minus-button");
                     enable_plus_minus_button(minus_button);
-                    card.find(".mkt-element-img").css("opacity", "1");
+                    card.find(".mkt-card-img").css("opacity", "1");
                 }
             });
         });
