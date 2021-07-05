@@ -3,7 +3,8 @@
         {
             "version": "1.2.4",
             "changes": [
-                "Registro de cambios (changelog) agregado"
+                "Registro de cambios (changelog) agregado",
+                "Imagen de item de elemento agregada en las esquinas de las tarjetas"
             ]
         },
         {
