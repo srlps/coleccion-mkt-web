@@ -9,11 +9,16 @@ var filters = {
 
 var ranking_card_template = `
 <div class="mkt-card col mb-2 mb-md-4 px-2 px-md-3">
-    <div class="card mb-0">
-        <img data-src="{{background}}" class="card-img lazyload" style="opacity:{{opacity}}" loading="lazy">
-        <div class="card-img-overlay p-2" style="display:flex;align-items:center;justify-content:center;">
-            <img data-src="{{object}}" class="card-img lazyload"
-                style="max-height:100%;object-fit:contain;opacity:{{opacity}}" loading="lazy">
+    <div class="card mb-1" style="position:relative">
+        <img data-src="{{background}}" class="mkt-card-img mkt-background-img card-img lazyload" style="opacity:{{opacity}}"
+            loading="lazy">
+        <div class="mkt-element-div" style="display:flex">
+            <img data-src="{{element}}" class="mkt-card-img mkt-element-img card-img lazyload" style="opacity:{{opacity}}"
+                loading="lazy">
+        </div>
+        <div class="mkt-object-div" style="display:flex">
+            <img data-src="{{object}}" class="mkt-card-img mkt-object-img card-img lazyload" style="opacity:{{opacity}}"
+                loading="lazy">
         </div>
     </div>
     <div class="row m-0" style="height:40px;"">
@@ -29,6 +34,7 @@ function load_ranking(type) {
     $("#card-grid").empty();
     let e = info_database.getSchema().table('elements');
     let c = info_database.getSchema().table('circuits');
+    let o = info_database.getSchema().table('objects');
     let ec = info_database.getSchema().table('elements_circuits');
     new Promise((resolve, reject) => {
         if (filters.only_non_covered_circuits) {
@@ -75,8 +81,10 @@ function load_ranking(type) {
         if (filters.only_league_circuits) {
             condition = lf.op.and(condition, c.league.gt(0));
         }
-        return info_database.select(e.id, e.pos, e.tier, e.image_url, lf.fn.count(ec.circuit_id).as('favored_circuits'))
+        return info_database.select(e.id, e.pos, e.tier, e.image_url,
+            lf.fn.count(ec.circuit_id).as('favored_circuits'), o.image_url)
             .from(ec).leftOuterJoin(e, ec.element_id.eq(e.id)).leftOuterJoin(c, ec.circuit_id.eq(c.id))
+            .innerJoin(o, o.id.eq(e.object_id))
             .where(condition)
             .groupBy(e.id)
             .orderBy(lf.fn.count(ec.circuit_id), lf.Order.DESC)
@@ -90,7 +98,8 @@ function load_ranking(type) {
             if (should_show) {
                 $("#card-grid").append(ranking_card_template
                     .replaceAll("{{background}}", select_background(rv.elements.tier, type))
-                    .replaceAll("{{object}}", rv.elements.image_url)
+                    .replaceAll("{{element}}", rv.elements.image_url)
+                    .replaceAll("{{object}}", rv.objects.image_url)
                     .replaceAll("{{opacity}}", level > 0 ? "1" : opacity_not_owned)
                     .replaceAll("{{num_circuits}}", rv.favored_circuits)
                 );
