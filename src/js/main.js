@@ -88,6 +88,68 @@ function execute_after_condition(func, condition) {
     }, 100);
 }
 
+// main page templates
+var loading_spinner = `
+<div class="row mt-5">
+    <div class="col text-center">
+        <i class="fas fa-spinner fa-5x fa-spin"></i>
+    </div>
+</div>
+`;
+
+var metadata_template = `
+<p style="color:rgba(34,42,66,0.75) !important;">{{content}}</p>
+`;
+
+var changelog_template = `
+<div class="row">
+    <div class="col px-0">
+        <h4 style="color:var(--dark)">Versión {{version}}</h4>
+    </div>
+</div>
+<div class="row">
+    <div class="col px-0">
+        <ul>{{changes}}</ul>
+    </div>
+</div>
+`;
+
+var element_details_template = `
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-6 px-0">
+            <div class="card mb-1" style="position:relative">
+                <img data-src="{{background}}" class="mkt-background-img card-img lazyload p-0" loading="lazy">
+                <div class="mkt-element-div" style="display:flex">
+                    <img data-src="{{element}}" class="mkt-element-img card-img lazyload p-0" loading="lazy">
+                </div>
+                <div class="mkt-object-div" style="display:flex">
+                    <img data-src="{{object}}" class="mkt-object-img card-img lazyload p-0" loading="lazy">
+                </div>
+            </div>
+        </div>
+        <div class="col-6 px-0" style="display: flex;flex-direction: column;justify-content: space-evenly;">
+            <div class="row mx-0 px-3" style="justify-content: center">
+                <h4 class="d-sm-block d-none" style="text-align: center">Nivel actual: <b>{{level}}</b></h4>
+                <h5 class="d-block d-sm-none" style="text-align: center">Nivel actual: <b>{{level}}</b></h5>
+            </div>
+            <div class="row mx-0 px-3" style="justify-content: center">
+                <h4 class="d-sm-block d-none" style="text-align: center">Cantidad de circuitos: <b>{{circuits}}</b></h4>
+                <h5 class="d-block d-sm-none" style="text-align: center">Cantidad de circuitos: <b>{{circuits}}</b></h5>
+            </div>
+            <div class="row mx-0 px-3" style="justify-content: center">
+                <h4 class="d-sm-block d-none" style="text-align: center">Tiene el nivel más alto en <b>{{highest_level}}</b> circuitos</h4>
+                <h5 class="d-block d-sm-none" style="text-align: center">Tiene el nivel más alto en <b>{{highest_level}}</b> circuitos</h5>
+            </div>
+            <div class="row mx-0 px-3" style="justify-content: center">
+                <h4 class="d-sm-block d-none" style="text-align: center">Es tu mejor opción en <b>{{best_option}}</b> circuitos</h4>
+                <h5 class="d-block d-sm-none" style="text-align: center">Es tu mejor opción en <b>{{best_option}}</b> circuitos</h5>
+            </div>
+        </div>
+    </div>
+</div>
+`;
+
 // main page functions
 function set_active_menu_item(item) {
     item.addClass("active");
@@ -119,31 +181,33 @@ function set_unread_changelog() {
     $('.mkt-changelog-icon').show();
 }
 
-// main page templates
-var loading_spinner = `
-<div class="row mt-5">
-    <div class="col text-center">
-        <i class="fas fa-spinner fa-5x fa-spin"></i>
-    </div>
-</div>
-`;
+function show_changelog() {
+    $('#popup-modal-title').text('Changelog');
+    $('#popup-modal-body').removeClass('bg-dark');
+    $('#popup-modal-body').html(`<div class="container-fluid">${changelog.content.map(e =>
+        changelog_template
+            .replaceAll('{{version}}', e.version)
+            .replaceAll('{{changes}}', e.changes.map(
+                change_element => `<li style="color:var(--dark)">${change_element}</li>`).join(""))
+    ).join("")}</div>`);
+    $("#menuModal").modal("hide");
+    $('#popupModal').modal('show');
+}
 
-var metadata_template = `
-<p style="color:rgba(34,42,66,0.75) !important;">{{content}}</p>
-`;
-
-var changelog_template = `
-<div class="row">
-    <div class="col px-0">
-        <h4 style="color:var(--dark)">Versión {{version}}</h4>
-    </div>
-</div>
-<div class="row">
-    <div class="col px-0">
-        <ul>{{changes}}</ul>
-    </div>
-</div>
-`;
+function show_element_details(name, img_urls, data) {
+    $('#popup-modal-title').text(name);
+    $('#popup-modal-body').addClass('bg-dark');
+    $('#popup-modal-body').html(element_details_template
+        .replaceAll("{{background}}", img_urls.background)
+        .replaceAll("{{element}}", img_urls.element)
+        .replaceAll("{{object}}", img_urls.object)
+        .replaceAll("{{level}}", data.level)
+        .replaceAll("{{circuits}}", data.circuits)
+        .replaceAll("{{highest_level}}", data.highest_level)
+        .replaceAll("{{best_option}}", data.best_option));
+    $("#menuModal").modal("hide");
+    $('#popupModal').modal('show');
+}
 
 // main page init
 $(() => {
@@ -251,15 +315,7 @@ $(() => {
                             userContent.changelog_read_version = changelog.content[0].version;
                             set_data_unsyncd();
                         }
-                        $('#popup-modal-title').text('Changelog');
-                        $('#popup-modal-body').html(`<div class="container-fluid">${changelog.content.map(e =>
-                            changelog_template
-                                .replaceAll('{{version}}', e.version)
-                                .replaceAll('{{changes}}', e.changes.map(
-                                    change_element => `<li style="color:var(--dark)">${change_element}</li>`).join(""))
-                        ).join("")}</div>`);
-                        $("#menuModal").modal("hide");
-                        $('#popupModal').modal('show');
+                        show_changelog();
                     })
                 }, () => changelog);
 
@@ -276,7 +332,7 @@ $(() => {
                 let circuits_list;
                 sheetrock({
                     url: circuits_url,
-                    query: 'select A, B, C, D, E',
+                    query: 'select A, B, C, D, E, F',
                     reset: true,
                     callback: (error, options, response) => {
                         circuits_list = response.rows.slice(1).map((v, i, a) => v.cells);
@@ -317,6 +373,7 @@ $(() => {
                     addColumn('league', lf.Type.INTEGER).
                     addColumn('pos', lf.Type.INTEGER).
                     addColumn('mkt', lf.Type.BOOLEAN).
+                    addColumn('source', lf.Type.STRING).
                     addPrimaryKey(['id']);
                 schemaBuilder.createTable('objects').
                     addColumn('id', lf.Type.INTEGER).
@@ -356,7 +413,8 @@ $(() => {
                             'name': v.name,
                             'league': parseInt(v.league),
                             'pos': parseInt(v.pos),
-                            'mkt': v.mkt
+                            'mkt': v.mkt,
+                            'source': v.source
                         }))
                     ).exec().then(() => loaded_flags[1] = true);
                 }, () => circuits_list);
