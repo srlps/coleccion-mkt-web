@@ -9,7 +9,8 @@ var filters = {
 
 var ranking_card_template = `
 <div class="mkt-card col mb-2 mb-md-4 px-2 px-md-3">
-    <div class="mkt-card-clickable card mb-1" style="position:relative" data-id="{{id}}" data-level="{{level}}">
+    <div class="mkt-card-clickable card mb-1" style="position:relative" data-id="{{id}}" data-name="{{name}}"
+        data-level="{{level}}">
         <img data-src="{{background}}" class="mkt-card-img mkt-background-img card-img lazyload" style="opacity:{{opacity}}"
             loading="lazy">
         <div class="mkt-element-div" style="display:flex">
@@ -81,14 +82,13 @@ function load_ranking(type) {
         if (filters.only_league_circuits) {
             condition = lf.op.and(condition, c.league.gt(0));
         }
-        return info_database.select(e.id, e.pos, e.tier, e.image_url,
+        return info_database.select(e.id, e.name, e.pos, e.tier, e.image_url,
             lf.fn.count(ec.circuit_id).as('favored_circuits'), o.image_url)
             .from(ec).leftOuterJoin(e, ec.element_id.eq(e.id)).leftOuterJoin(c, ec.circuit_id.eq(c.id))
             .innerJoin(o, o.id.eq(e.object_id))
             .where(condition)
             .groupBy(e.id)
-            .orderBy(lf.fn.count(ec.circuit_id), lf.Order.DESC)
-            .orderBy(e.pos, lf.Order.ASC)
+            .orderBy(lf.fn.count(ec.circuit_id), lf.Order.DESC).orderBy(e.pos, lf.Order.ASC)
             .exec();
     }).then(elements_rows => {
         elements_rows.forEach((rv, ri, ra) => {
@@ -103,6 +103,7 @@ function load_ranking(type) {
                     .replaceAll("{{opacity}}", level > 0 ? "1" : opacity_not_owned)
                     .replaceAll("{{num_circuits}}", rv.favored_circuits)
                     .replaceAll("{{id}}", rv.elements.id)
+                    .replaceAll("{{name}}", rv.elements.name)
                     .replaceAll("{{level}}", level)
                 );
             }
@@ -116,7 +117,9 @@ function load_ranking(type) {
                     object: element_div.find('.mkt-object-img').attr('data-src')
                 },
                 {
-                    id: element_div.attr('data-name'),
+                    id: element_div.attr('data-id'),
+                    name: element_div.attr('data-name'),
+                    type: type,
                     level: element_div.attr('data-level')
                 }
             );

@@ -200,7 +200,6 @@ function show_changelog() {
 var details_stack = [];
 
 function show_element_details(img_urls, data) {
-    $('#popup-modal-body').addClass('bg-dark');
     $('#popup-back-button').show();
     if (details_stack.length == 0) {
         $('#popup-back-button').prop('disabled', true);
@@ -212,33 +211,45 @@ function show_element_details(img_urls, data) {
         img_urls: img_urls,
         data: data
     })
-    
-    //TODO details queries
-    let e = info_database.getSchema().table('elements');
-    let c = info_database.getSchema().table('circuits');
-    let o = info_database.getSchema().table('objects');
-    let ec = info_database.getSchema().table('elements_circuits');
-    info_database.select(e.id, e.pos, e.tier, e.image_url,
-            lf.fn.count(ec.circuit_id).as('favored_circuits'), o.image_url)
-            .from(ec).leftOuterJoin(e, ec.element_id.eq(e.id)).leftOuterJoin(c, ec.circuit_id.eq(c.id))
-            .innerJoin(o, o.id.eq(e.object_id))
-            .where(e.type.eq(type))
-            .groupBy(e.id)
-            .orderBy(lf.fn.count(ec.circuit_id), lf.Order.DESC)
-            .orderBy(e.pos, lf.Order.ASC)
-            .exec();
-    $('#popup-modal-title').text('undefined');
-    $('#popup-modal-body').html(element_details_template
+    $('#popup-modal-title').text(data.name);
+    $('#popup-modal-body').addClass('bg-dark');
+    let element_details = element_details_template
         .replaceAll("{{background}}", img_urls.background)
         .replaceAll("{{element}}", img_urls.element)
         .replaceAll("{{object}}", img_urls.object)
         .replaceAll("{{level}}", data.level)
-        .replaceAll("{{circuits}}", undefined)
-        .replaceAll("{{display}}", data.level > 0 ? 'flex' : 'none')
-        .replaceAll("{{highest_level}}", undefined)
-        .replaceAll("{{best_option}}", undefined));
-    $("#menuModal").modal("hide");
-    $('#popupModal').modal('show');
+        .replaceAll("{{display}}", data.level > 0 ? 'flex' : 'none');
+
+    let e = info_database.getSchema().table('elements');
+    let c = info_database.getSchema().table('circuits');
+    let o = info_database.getSchema().table('objects');
+    let ec = info_database.getSchema().table('elements_circuits');
+    let type_condition;
+    switch (data.type) {
+        case 1:
+            type_condition = ec.element_id.lt(30000);
+            break;
+        case 2:
+            type_condition = ec.element_id.gt(70000);
+            break;
+        case 3:
+            type_condition = ec.element_id.between(30000, 70000);
+            break;
+    }
+    info_database.select(ec.circuit_id)
+        .from(ec).leftOuterJoin(c, ec.circuit_id.eq(c.id))
+        .where(ec.element_id.eq(data.id))
+        .orderBy(ec.level, lf.Order.ASC).orderBy(c.pos, lf.Order.ASC)
+        .exec()
+        .then(circuit_ids => {
+            element_details = element_details
+                .replaceAll("{{circuits}}", circuit_ids.length)
+                .replaceAll("{{highest_level}}", undefined)
+                .replaceAll("{{best_option}}", undefined);;
+            $('#popup-modal-body').html(element_details);
+            $("#menuModal").modal("hide");
+            $('#popupModal').modal('show');
+        });
 }
 
 // main page init
@@ -306,6 +317,17 @@ $(() => {
     add_visibility_change_event($("#menu-div-sm")[0], isVisible => {
         if (!isVisible) {
             $("#menuModal").modal("hide");
+        }
+    });
+    $('#popup-back-button').click(e => {
+        details_stack.pop();
+        if (details_stack.length > 0) {
+            let last_details_query = details_stack[details_stack.length - 1];
+            switch (last_details_query.type) {
+                case 'element':
+                    show_element_details(last_details_query.img_urls, last_details_query.data);
+                    break;
+            }
         }
     });
 
