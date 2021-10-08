@@ -98,3 +98,38 @@
     -o-transform: translate(-50%, 0) !important;
     transform: translate(-50%, 0) !important;
 }
+
+.mkt-back {
+    float: right;
+    font-size: 1.3125rem;
+    font-weight: 600;
+    line-height: 1;
+    color: rgb(0,0,0);
+    text-shadow: none;
+    opacity: .5;
+}
+
+.mkt-back:hover {
+    text-decoration: none;
+}
+
+.mkt-back:disabled {
+    opacity: .2 !important;
+    text-decoration: none;
+}
+
+button.mkt-back {
+    padding: 0 !important;
+    margin-left: 0 !important;
+    margin-right: .5rem !important;
+    background-color: transparent;
+    border: 0;
+}
+
+.modal .modal-header .mkt-back {
+    text-shadow: none;
+}
+
+.modal .modal-header .mkt-back:hover, .modal .modal-header .mkt-back:focus {
+    opacity: 1;
+}

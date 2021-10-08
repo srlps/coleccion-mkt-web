@@ -137,11 +137,11 @@ var element_details_template = `
                 <h4 class="d-sm-block d-none" style="text-align: center">Cantidad de circuitos: <b>{{circuits}}</b></h4>
                 <h5 class="d-block d-sm-none" style="text-align: center">Cantidad de circuitos: <b>{{circuits}}</b></h5>
             </div>
-            <div class="row mx-0 px-3" style="justify-content: center">
+            <div class="row mx-0 px-3" style="justify-content: center;display: {{display}}">
                 <h4 class="d-sm-block d-none" style="text-align: center">Tiene el nivel más alto en <b>{{highest_level}}</b> circuitos</h4>
                 <h5 class="d-block d-sm-none" style="text-align: center">Tiene el nivel más alto en <b>{{highest_level}}</b> circuitos</h5>
             </div>
-            <div class="row mx-0 px-3" style="justify-content: center">
+            <div class="row mx-0 px-3" style="justify-content: center;display: {{display}}">
                 <h4 class="d-sm-block d-none" style="text-align: center">Es tu mejor opción en <b>{{best_option}}</b> circuitos</h4>
                 <h5 class="d-block d-sm-none" style="text-align: center">Es tu mejor opción en <b>{{best_option}}</b> circuitos</h5>
             </div>
@@ -182,6 +182,7 @@ function set_unread_changelog() {
 }
 
 function show_changelog() {
+    $('#popup-back-button').hide();
     $('#popup-modal-title').text('Changelog');
     $('#popup-modal-body').removeClass('bg-dark');
     $('#popup-modal-body').html(`<div class="container-fluid">${changelog.content.map(e =>
@@ -194,17 +195,48 @@ function show_changelog() {
     $('#popupModal').modal('show');
 }
 
-function show_element_details(name, img_urls, data) {
-    $('#popup-modal-title').text(name);
+// details functions
+
+var details_stack = [];
+
+function show_element_details(img_urls, data) {
     $('#popup-modal-body').addClass('bg-dark');
+    $('#popup-back-button').show();
+    if (details_stack.length == 0) {
+        $('#popup-back-button').prop('disabled', true);
+    } else {
+        $('#popup-back-button').prop('disabled', false);
+    }
+    details_stack.push({
+        type: 'element',
+        img_urls: img_urls,
+        data: data
+    })
+    
+    //TODO details queries
+    let e = info_database.getSchema().table('elements');
+    let c = info_database.getSchema().table('circuits');
+    let o = info_database.getSchema().table('objects');
+    let ec = info_database.getSchema().table('elements_circuits');
+    info_database.select(e.id, e.pos, e.tier, e.image_url,
+            lf.fn.count(ec.circuit_id).as('favored_circuits'), o.image_url)
+            .from(ec).leftOuterJoin(e, ec.element_id.eq(e.id)).leftOuterJoin(c, ec.circuit_id.eq(c.id))
+            .innerJoin(o, o.id.eq(e.object_id))
+            .where(e.type.eq(type))
+            .groupBy(e.id)
+            .orderBy(lf.fn.count(ec.circuit_id), lf.Order.DESC)
+            .orderBy(e.pos, lf.Order.ASC)
+            .exec();
+    $('#popup-modal-title').text('undefined');
     $('#popup-modal-body').html(element_details_template
         .replaceAll("{{background}}", img_urls.background)
         .replaceAll("{{element}}", img_urls.element)
         .replaceAll("{{object}}", img_urls.object)
         .replaceAll("{{level}}", data.level)
-        .replaceAll("{{circuits}}", data.circuits)
-        .replaceAll("{{highest_level}}", data.highest_level)
-        .replaceAll("{{best_option}}", data.best_option));
+        .replaceAll("{{circuits}}", undefined)
+        .replaceAll("{{display}}", data.level > 0 ? 'flex' : 'none')
+        .replaceAll("{{highest_level}}", undefined)
+        .replaceAll("{{best_option}}", undefined));
     $("#menuModal").modal("hide");
     $('#popupModal').modal('show');
 }

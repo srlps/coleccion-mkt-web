@@ -9,8 +9,7 @@ var filters = {
 
 var ranking_card_template = `
 <div class="mkt-card col mb-2 mb-md-4 px-2 px-md-3">
-    <div class="mkt-card-clickable card mb-1" style="position:relative" data-name="{{name}}" data-level="{{level}}"
-        data-num-circuits="{{num_circuits}}">
+    <div class="mkt-card-clickable card mb-1" style="position:relative" data-id="{{id}}" data-level="{{level}}">
         <img data-src="{{background}}" class="mkt-card-img mkt-background-img card-img lazyload" style="opacity:{{opacity}}"
             loading="lazy">
         <div class="mkt-element-div" style="display:flex">
@@ -82,7 +81,7 @@ function load_ranking(type) {
         if (filters.only_league_circuits) {
             condition = lf.op.and(condition, c.league.gt(0));
         }
-        return info_database.select(e.id, e.pos, e.tier, e.image_url, e.name,
+        return info_database.select(e.id, e.pos, e.tier, e.image_url,
             lf.fn.count(ec.circuit_id).as('favored_circuits'), o.image_url)
             .from(ec).leftOuterJoin(e, ec.element_id.eq(e.id)).leftOuterJoin(c, ec.circuit_id.eq(c.id))
             .innerJoin(o, o.id.eq(e.object_id))
@@ -103,7 +102,7 @@ function load_ranking(type) {
                     .replaceAll("{{object}}", rv.objects.image_url)
                     .replaceAll("{{opacity}}", level > 0 ? "1" : opacity_not_owned)
                     .replaceAll("{{num_circuits}}", rv.favored_circuits)
-                    .replaceAll("{{name}}", rv.elements.name)
+                    .replaceAll("{{id}}", rv.elements.id)
                     .replaceAll("{{level}}", level)
                 );
             }
@@ -111,17 +110,14 @@ function load_ranking(type) {
         $('.mkt-card-clickable').click(e => {
             let element_div = $(e.currentTarget);
             show_element_details(
-                element_div.attr('data-name'),
                 {
                     background: element_div.children('.mkt-background-img').attr('data-src'),
                     element: element_div.find('.mkt-element-img').attr('data-src'),
                     object: element_div.find('.mkt-object-img').attr('data-src')
                 },
                 {
-                    level: element_div.attr('data-level'),
-                    circuits: element_div.attr('data-num-circuits'),
-                    highest_level: 5,
-                    best_option: 2
+                    id: element_div.attr('data-name'),
+                    level: element_div.attr('data-level')
                 }
             );
         });
