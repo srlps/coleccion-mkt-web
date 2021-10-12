@@ -597,7 +597,7 @@ $(() => {
                 let circuits_list;
                 sheetrock({
                     url: circuits_url,
-                    query: 'select A, B, C, D, E, F',
+                    query: 'select A, B, C, D, E',
                     reset: true,
                     callback: (error, options, response) => {
                         circuits_list = response.rows.slice(1).map((v, i, a) => v.cells);
