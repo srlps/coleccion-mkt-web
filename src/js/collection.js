@@ -72,7 +72,7 @@ function load_collection(type) {
                     .replaceAll("{{plus-disabled}}", level < 7 ? "" : "disabled")
                 );
             });
-            $(".mkt-minus-button").click((e) => {
+            $(".mkt-minus-button").on("click", e => {
                 set_data_unsyncd();
                 let minus_button = $(e.currentTarget);
                 let card = minus_button.parents(".mkt-card");
@@ -89,7 +89,7 @@ function load_collection(type) {
                     enable_plus_minus_button(plus_button);
                 }
             });
-            $(".mkt-plus-button").click((e) => {
+            $(".mkt-plus-button").on("click", e => {
                 set_data_unsyncd();
                 let plus_button = $(e.currentTarget);
                 let card = plus_button.parents(".mkt-card");

@@ -11,14 +11,14 @@ var ranking_card_template = `
 <div class="mkt-card col mb-2 mb-md-4 px-2 px-md-3">
     <div class="mkt-card-clickable card mb-1" style="position:relative" data-id="{{id}}" data-name="{{name}}"
         data-level="{{level}}">
-        <img data-src="{{background}}" class="mkt-card-img mkt-background-img card-img lazyload" style="opacity:{{opacity}}"
+        <img data-src="{{background}}" class="mkt-background-img card-img lazyload" style="opacity:{{opacity}}"
             loading="lazy">
         <div class="mkt-element-div" style="display:flex">
-            <img data-src="{{element}}" class="mkt-card-img mkt-element-img card-img lazyload" style="opacity:{{opacity}}"
+            <img data-src="{{element}}" class="mkt-element-img card-img lazyload" style="opacity:{{opacity}}"
                 loading="lazy">
         </div>
         <div class="mkt-object-div" style="display:flex">
-            <img data-src="{{object}}" class="mkt-card-img mkt-object-img card-img lazyload" style="opacity:{{opacity}}"
+            <img data-src="{{object}}" class="mkt-object-img card-img lazyload" style="opacity:{{opacity}}"
                 loading="lazy">
         </div>
     </div>
@@ -108,7 +108,7 @@ function load_ranking(type) {
                 );
             }
         });
-        $('.mkt-card-clickable').click(e => {
+        $('.mkt-card-clickable').on("click", e => {
             let element_div = $(e.currentTarget);
             show_details('element',
                 {

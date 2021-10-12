@@ -32,7 +32,7 @@ $(() => {
     });
 
     // events
-    $("#google_login_button").click((e) => {
+    $("#google_login_button").on("click", e => {
         login_with_google();
     });
 });

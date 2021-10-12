@@ -52,20 +52,36 @@ function sync_user_data() {
 
 // elements backgrounds
 var opacity_not_owned = "0.5";
-var bg_driver_normal_v = "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/backgrounds%2Fdriver_normal_v.png?alt=media&token=f25a2785-b16f-4a9b-b001-1d31c53cb7fa";
-var bg_driver_super_v = "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/backgrounds%2Fdriver_super_v.png?alt=media&token=aaa5f10d-3b60-4e28-a9da-b1bd1e8369af";
-var bg_driver_highend_v = "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/backgrounds%2Fdriver_highend_v.png?alt=media&token=d454a4e4-4c6c-4e6d-be32-e67cc9bd0abc";
-var bg_garage_normal_v = "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/backgrounds%2Fgarage_normal_v.png?alt=media&token=92713e8d-1cbd-4b33-9499-a0a7c9bf3278";
-var bg_garage_super_v = "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/backgrounds%2Fgarage_super_v.png?alt=media&token=8f0c347a-def3-4543-8644-6510d2527fdf";
-var bg_garage_highend_v = "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/backgrounds%2Fgarage_highend_v.png?alt=media&token=b0cbd390-0bf6-464e-8ff4-d3e2f5ccacae";
-var backgrounds = [bg_driver_normal_v, bg_driver_super_v, bg_driver_highend_v,
-    bg_garage_normal_v, bg_garage_super_v, bg_garage_highend_v];
+var backgrounds = [
+    "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/backgrounds%2Fdriver_normal_v.png?alt=media&token=f25a2785-b16f-4a9b-b001-1d31c53cb7fa",
+    "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/backgrounds%2Fdriver_super_v.png?alt=media&token=aaa5f10d-3b60-4e28-a9da-b1bd1e8369af",
+    "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/backgrounds%2Fdriver_highend_v.png?alt=media&token=d454a4e4-4c6c-4e6d-be32-e67cc9bd0abc",
+    "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/backgrounds%2Fgarage_normal_v.png?alt=media&token=92713e8d-1cbd-4b33-9499-a0a7c9bf3278",
+    "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/backgrounds%2Fgarage_super_v.png?alt=media&token=8f0c347a-def3-4543-8644-6510d2527fdf",
+    "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/backgrounds%2Fgarage_highend_v.png?alt=media&token=b0cbd390-0bf6-464e-8ff4-d3e2f5ccacae"
+];
 
 function select_background(tier, type) {
     let i = type == 1 ? 0 : 3;
     i += tier - 1;
     return backgrounds[i];
 }
+
+// level badges
+var lock_url = "https://mario.wiki.gallery/images/5/5a/MKT_Icon_Lock.png";
+var check_url = "https://mario.wiki.gallery/images/0/0f/MKT_Icon_Check.png";
+var lvl_number_urls = [
+    "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/fonts%2FNumberRodinLevel00.png?alt=media&token=178ac875-c2a4-4215-9ccb-962269a769ed",
+    "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/fonts%2FNumberRodinLevel01.png?alt=media&token=74fb3bb1-9f4b-4da6-b1a9-79f265801ae1",
+    "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/fonts%2FNumberRodinLevel02.png?alt=media&token=d1144b19-f4aa-4814-8164-c4b18d9e6fda",
+    "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/fonts%2FNumberRodinLevel03.png?alt=media&token=ae5d44a6-61ec-412d-8a16-8079c39a7ed6",
+    "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/fonts%2FNumberRodinLevel04.png?alt=media&token=62b64626-e594-459b-aa6e-baa576b56ac8",
+    "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/fonts%2FNumberRodinLevel05.png?alt=media&token=20fd250d-f18c-4161-a72b-e55e0ad6e128",
+    "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/fonts%2FNumberRodinLevel06.png?alt=media&token=13b452e6-c694-416d-99c1-1d07d8cd9889",
+    "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/fonts%2FNumberRodinLevel07.png?alt=media&token=4879df99-3453-4a1e-84ef-dd7d5cb86ee9",
+    "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/fonts%2FNumberRodinLevel08.png?alt=media&token=12ed4f54-9928-4ecf-b481-7cf71b5fbe6d",
+    "https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/fonts%2FNumberRodinLevel09.png?alt=media&token=ac2d16bc-c002-4558-86d2-904f681101c8"
+];
 
 // utility functions
 function add_visibility_change_event(element, handler) {
@@ -153,7 +169,7 @@ var element_details_template = `
 `;
 
 var circuit_elements_template = `
-<div class="row mt-2">
+<div class="row my-2">
     <div class="col-12 px-0">
         <label class="btn btn-info container my-0 px-3 active">{{name}}</label>
     </div>
@@ -163,16 +179,32 @@ var circuit_elements_template = `
 
 var single_circuit_element_template = `
 <div class="mkt-card col-3 col-lg-2 mb-2 px-2">
-    <div class="card mb-1" style="position:relative" data-id="{{id}}" data-name="{{name}}" data-level="{{level}}">
-        <img data-src="{{background}}" class="mkt-card-img mkt-background-img card-img lazyload p-0" style="opacity:{{opacity}}"
+    <div class="mkt-card-clickable card mb-1 {{best_class}}" style="position:relative" data-id="{{id}}" data-name="{{name}}"
+        data-level="{{level}}">
+        <img data-src="{{background}}" class="mkt-background-img card-img lazyload p-0" style="opacity:{{opacity}}"
             loading="lazy">
         <div class="mkt-element-div" style="display:flex">
-            <img data-src="{{element}}" class="mkt-card-img mkt-element-img card-img lazyload p-0" style="opacity:{{opacity}}"
+            <img data-src="{{element}}" class="mkt-element-img card-img lazyload p-0" style="opacity:{{opacity}}"
                 loading="lazy">
         </div>
         <div class="mkt-object-div" style="display:flex">
-            <img data-src="{{object}}" class="mkt-card-img mkt-object-img card-img lazyload p-0" style="opacity:{{opacity}}"
+            <img data-src="{{object}}" class="mkt-object-img card-img lazyload p-0" style="opacity:{{opacity}}"
                 loading="lazy">
+        </div>
+        <div class="mkt-badge-div" style="display:{{badge_display}}">
+            <img data-src="{{badge_lock}}" class="mkt-badge-img card-img lazyload p-0 mr-1" loading="lazy">
+            <img data-src="https://firebasestorage.googleapis.com/v0/b/coleccion-mkt-web.appspot.com/o/fonts%2FNumberRodinLevelLvEUes.png?alt=media&token=050b9ce8-f6d2-43dc-aff7-f6da6062ffa3"
+                class="mkt-badge-img card-img lazyload p-0" loading="lazy">
+            <img data-src="{{badge_number}}" class="mkt-badge-img card-img lazyload p-0" loading="lazy">
+        </div>
+        <div class="mkt-best-div" style="display:{{best_display}}">
+            <img data-src="https://mario.wiki.gallery/images/f/fe/MKT_210GB.png" class="mkt-best-img card-img lazyload p-0"
+                loading="lazy">
+        </div>
+    </div>
+    <div class="row m-0">
+        <div class="col p-0 text-center">
+            <h5 class="font-weight-bold text-white m-0">NIV. {{level}}</h5>
         </div>
     </div>
 </div>
@@ -360,6 +392,11 @@ function show_element_details(img_urls, data) {
                         .replaceAll("{{id}}", e.id)
                         .replaceAll("{{name}}", e.name)
                         .replaceAll("{{level}}", e.level)
+                        .replaceAll("{{badge_display}}", e.min_level > 1 ? "flex" : "none")
+                        .replaceAll("{{badge_lock}}", e.level >= e.min_level ? check_url : lock_url)
+                        .replaceAll("{{badge_number}}", lvl_number_urls[e.min_level])
+                        .replaceAll("{{best_class}}", e.best_option ? "mkt-best-glow" : "")
+                        .replaceAll("{{best_display}}", e.best_option ? "flex" : "none")
                     ).join(""));
             }).join("");
             element_details = element_details
@@ -367,6 +404,25 @@ function show_element_details(img_urls, data) {
                 .replaceAll("{{best_option}}", best_option)
                 .replaceAll("{{circuit_elements}}", circuit_elements);
             $('#details-modal-body').html(element_details);
+            $('#details-modal-body').find(".mkt-card-clickable").on("click", e => {
+                let element_div = $(e.currentTarget);
+                show_details('element',
+                    {
+                        img_urls: {
+                            background: element_div.children('.mkt-background-img').attr('data-src'),
+                            element: element_div.find('.mkt-element-img').attr('data-src'),
+                            object: element_div.find('.mkt-object-img').attr('data-src')
+                        },
+                        data: {
+                            id: element_div.attr('data-id'),
+                            name: element_div.attr('data-name'),
+                            type: data.type,
+                            level: element_div.attr('data-level')
+                        }
+                    }
+                );
+            })
+            $('#details-modal-body').animate({ scrollTop: 0 }, 10);
             $('#detailsModal').modal('show');
         });
 }
@@ -449,7 +505,7 @@ $(() => {
     });
 
     // events init
-    $(".mkt-logout-button").click(e => {
+    $(".mkt-logout-button").on("click", e => {
         firebase.auth().signOut().then(() => {
             location.replace("/login");
         });
@@ -458,7 +514,7 @@ $(() => {
         let item = $(e);
         let item_href = item.attr("href");
         let url_reference = item_href.replace("#", "/");
-        item.click((e) => {
+        item.on("click", e => {
             unset_active_menu_item($(".mkt-menu-item.active"));
             set_active_menu_item($(`.mkt-menu-item[href='${item_href}']`));
             $("#menuModal").modal("hide");
@@ -471,7 +527,7 @@ $(() => {
             $("#menuModal").modal("hide");
         }
     });
-    $('#details-back-button').click(e => {
+    $('#details-back-button').on("click", e => {
         details_stack.pop();
         if (details_stack.length > 0) {
             let last_details_query = details_stack[details_stack.length - 1];

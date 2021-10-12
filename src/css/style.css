@@ -68,13 +68,43 @@
     position: absolute;
     height: 18%;
     width: 90%;
-    top: 77%;
+    bottom: 5%;
     left: 5%;
 }
 
 .mkt-object-img {
     object-fit: contain;
     object-position: left;
+}
+
+.mkt-badge-div {
+    position: absolute;
+    height: 12%;
+    width: fit-content;
+    top: 5%;
+    right: 5%;
+}
+
+.mkt-badge-img {
+    object-fit: contain;
+    object-position: right;
+    width: initial;
+}
+
+.mkt-best-div {
+    position: absolute;
+    height: 23%;
+    bottom: 5%;
+    right: 5%;
+}
+
+.mkt-best-img {
+    object-fit: contain;
+    object-position: right;
+}
+
+.mkt-best-glow {
+    box-shadow: 0 0 0.8em 0.7em rgb(10, 149, 255);
 }
 
 .dropdown-menu:before {
