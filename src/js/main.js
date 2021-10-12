@@ -27,6 +27,7 @@ var elements_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_Qh
 var circuits_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=1377585849";
 var objects_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=1554086270";
 var elements_circuits_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=1130853870";
+var league_best_option_rules_url = "https://docs.google.com/spreadsheets/d/13GDb4-uFg8hq5is6F_QhJcz4sMKNskatMcgkB0INwD8/edit#gid=526535366";
 
 var info_database;
 
@@ -147,6 +148,33 @@ var element_details_template = `
             </div>
         </div>
     </div>
+    {{circuit_elements}}
+</div>
+`;
+
+var circuit_elements_template = `
+<div class="row mt-2">
+    <div class="col-12 px-0">
+        <label class="btn btn-info container my-0 px-3 active">{{name}}</label>
+    </div>
+</div>
+<div class="row mt-1">{{elements}}</div>
+`;
+
+var single_circuit_element_template = `
+<div class="mkt-card col-3 col-lg-2 mb-2 px-2">
+    <div class="card mb-1" style="position:relative" data-id="{{id}}" data-name="{{name}}" data-level="{{level}}">
+        <img data-src="{{background}}" class="mkt-card-img mkt-background-img card-img lazyload p-0" style="opacity:{{opacity}}"
+            loading="lazy">
+        <div class="mkt-element-div" style="display:flex">
+            <img data-src="{{element}}" class="mkt-card-img mkt-element-img card-img lazyload p-0" style="opacity:{{opacity}}"
+                loading="lazy">
+        </div>
+        <div class="mkt-object-div" style="display:flex">
+            <img data-src="{{object}}" class="mkt-card-img mkt-object-img card-img lazyload p-0" style="opacity:{{opacity}}"
+                loading="lazy">
+        </div>
+    </div>
 </div>
 `;
 
@@ -182,37 +210,40 @@ function set_unread_changelog() {
 }
 
 function show_changelog() {
-    $('#popup-back-button').hide();
-    $('#popup-modal-title').text('Changelog');
-    $('#popup-modal-body').removeClass('bg-dark');
-    $('#popup-modal-body').html(`<div class="container-fluid">${changelog.content.map(e =>
+    $('#changelog-content').html(changelog.content.map(e =>
         changelog_template
             .replaceAll('{{version}}', e.version)
             .replaceAll('{{changes}}', e.changes.map(
                 change_element => `<li style="color:var(--dark)">${change_element}</li>`).join(""))
-    ).join("")}</div>`);
+    ).join(""));
     $("#menuModal").modal("hide");
-    $('#popupModal').modal('show');
+    $('#changelogModal').modal('show');
 }
 
 // details functions
 
 var details_stack = [];
 
-function show_element_details(img_urls, data) {
-    $('#popup-back-button').show();
-    if (details_stack.length == 0) {
-        $('#popup-back-button').prop('disabled', true);
-    } else {
-        $('#popup-back-button').prop('disabled', false);
+function show_details(type, object) {
+    switch (type) {
+        case 'element':
+            details_stack.push({
+                type: 'element',
+                img_urls: object.img_urls,
+                data: object.data
+            });
+            show_element_details(object.img_urls, object.data);
+            break;
     }
-    details_stack.push({
-        type: 'element',
-        img_urls: img_urls,
-        data: data
-    })
-    $('#popup-modal-title').text(data.name);
-    $('#popup-modal-body').addClass('bg-dark');
+}
+
+function show_element_details(img_urls, data) {
+    if (details_stack.length == 1) {
+        $('#details-back-button').prop('disabled', true);
+    } else {
+        $('#details-back-button').prop('disabled', false);
+    }
+    $('#details-modal-title').text(data.name);
     let element_details = element_details_template
         .replaceAll("{{background}}", img_urls.background)
         .replaceAll("{{element}}", img_urls.element)
@@ -224,32 +255,153 @@ function show_element_details(img_urls, data) {
     let c = info_database.getSchema().table('circuits');
     let o = info_database.getSchema().table('objects');
     let ec = info_database.getSchema().table('elements_circuits');
-    let type_condition;
-    switch (data.type) {
-        case 1:
-            type_condition = ec.element_id.lt(30000);
-            break;
-        case 2:
-            type_condition = ec.element_id.gt(70000);
-            break;
-        case 3:
-            type_condition = ec.element_id.between(30000, 70000);
-            break;
-    }
+    let ordered_circuit_ids;
     info_database.select(ec.circuit_id)
         .from(ec).leftOuterJoin(c, ec.circuit_id.eq(c.id))
         .where(ec.element_id.eq(data.id))
         .orderBy(ec.level, lf.Order.ASC).orderBy(c.pos, lf.Order.ASC)
         .exec()
         .then(circuit_ids => {
+            ordered_circuit_ids = circuit_ids.map(e => e.elements_circuits.circuit_id);
             element_details = element_details
-                .replaceAll("{{circuits}}", circuit_ids.length)
-                .replaceAll("{{highest_level}}", undefined)
-                .replaceAll("{{best_option}}", undefined);;
-            $('#popup-modal-body').html(element_details);
-            $("#menuModal").modal("hide");
-            $('#popupModal').modal('show');
+                .replaceAll("{{circuits}}", ordered_circuit_ids.length);
+            return info_database.select(c.id, c.name, ec.level, e.id, e.name, e.tier, e.pos, e.image_url, o.id, o.image_url)
+                .from(ec).leftOuterJoin(c, ec.circuit_id.eq(c.id)).leftOuterJoin(e, ec.element_id.eq(e.id))
+                .leftOuterJoin(o, e.object_id.eq(o.id))
+                .where(lf.op.and(ec.circuit_id.in(ordered_circuit_ids), e.type.eq(data.type)))
+                .exec();
+        }).then(element_circuits => {
+            let circuits_map = new Map();
+            element_circuits.forEach((e) => {
+                let key = e.circuits.id;
+                let element = select_array(data.type).find((uv, ui, ua) => uv.id == e.elements.id);
+                let level = element ? element.level : 0;
+                let map_element = {
+                    id: e.elements.id,
+                    name: e.elements.name,
+                    tier: e.elements.tier,
+                    pos: e.elements.pos,
+                    object_id: e.objects.id,
+                    element_img_url: e.elements.image_url,
+                    object_img_url: e.objects.image_url,
+                    min_level: e.elements_circuits.level,
+                    level: level
+                };
+                let collection = circuits_map.get(key);
+                if (!collection) {
+                    circuits_map.set(key, {
+                        id: key,
+                        name: e.circuits.name,
+                        elements: [map_element]
+                    });
+                } else {
+                    collection.elements.push(map_element);
+                }
+            });
+
+            let highest_level = 0;
+            let best_option = 0;
+            let circuit_elements = ordered_circuit_ids.map(e => {
+                let circuit = circuits_map.get(e);
+                circuit.elements.sort((a, b) => compare_elements_in_circuit(a, b));
+                let prev_element = circuit.elements[0];
+                let highest_array = [];
+                if (prev_element.level >= prev_element.min_level) {
+                    highest_array.push(prev_element);
+                    if (prev_element.id == data.id) {
+                        highest_level++;
+                    }
+                    for (let i = 1; i < circuit.elements.length; i++) {
+                        let this_element = circuit.elements[i];
+                        if (this_element.level >= this_element.min_level && this_element.level == prev_element.level) {
+                            highest_array.push(this_element);
+                            if (this_element.id == data.id) {
+                                highest_level++;
+                            }
+                            prev_element = this_element;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+                if (highest_array.length > 0) {
+                    if (highest_array.length == 1) {
+                        highest_array[0].best_option = true;
+                        if (highest_array[0].id == data.id) {
+                            best_option++;
+                        }
+                    } else {
+                        let prev_high = highest_array[0];
+                        prev_high.best_option = true;
+                        if (prev_high.id == data.id) {
+                            best_option++;
+                        }
+                        for (let i = 1; i < highest_array.length; i++) {
+                            let this_high = highest_array[i];
+                            if (this_high.league_score == prev_high.league_score) {
+                                this_high.best_option = true;
+                                if (this_high.id == data.id) {
+                                    best_option++;
+                                }
+                                prev_high = this_high;
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                }
+                return circuit_elements_template
+                    .replaceAll("{{name}}", circuit.name)
+                    .replaceAll("{{elements}}", circuit.elements.map(e => single_circuit_element_template
+                        .replaceAll("{{background}}", select_background(e.tier, data.type))
+                        .replaceAll("{{element}}", e.element_img_url)
+                        .replaceAll("{{object}}", e.object_img_url)
+                        .replaceAll("{{opacity}}", e.level >= e.min_level ? "1" : opacity_not_owned)
+                        .replaceAll("{{id}}", e.id)
+                        .replaceAll("{{name}}", e.name)
+                        .replaceAll("{{level}}", e.level)
+                    ).join(""));
+            }).join("");
+            element_details = element_details
+                .replaceAll("{{highest_level}}", highest_level)
+                .replaceAll("{{best_option}}", best_option)
+                .replaceAll("{{circuit_elements}}", circuit_elements);
+            $('#details-modal-body').html(element_details);
+            $('#detailsModal').modal('show');
         });
+}
+
+function compare_elements_in_circuit(a, b) {
+    let cover_a = a.level >= a.min_level ? 1 : 0;
+    let cover_b = b.level >= b.min_level ? 1 : 0;
+    if (cover_a != cover_b) {
+        return cover_b - cover_a;
+    }
+    if (cover_a == 1) {
+        if (a.level != b.level) {
+            return b.level - a.level;
+        }
+        a.league_score = get_element_score_in_league(a);
+        b.league_score = get_element_score_in_league(b);
+        if (a.league_score != b.league_score) {
+            return b.league_score - a.league_score;
+        }
+    } else {
+        if (a.level > 0 && b.level > 0) {
+            return (a._min_level - a.level) - (b.min_level - b.level);
+        }
+        if (a.level + b.level > 0) {
+            return b.level - a.level;
+        }
+        if (a.min_level != b.min_level) {
+            return a.min_level - b.min_level;
+        }
+    }
+    return b.pos - a.pos;
+}
+
+function get_element_score_in_league(element) {
+    return 0;
 }
 
 // main page init
@@ -319,7 +471,7 @@ $(() => {
             $("#menuModal").modal("hide");
         }
     });
-    $('#popup-back-button').click(e => {
+    $('#details-back-button').click(e => {
         details_stack.pop();
         if (details_stack.length > 0) {
             let last_details_query = details_stack[details_stack.length - 1];
@@ -330,6 +482,9 @@ $(() => {
             }
         }
     });
+    $('#detailsModal').on('hidden.bs.modal', e => {
+        details_stack = [];
+    })
 
     // auth init
     firebase.auth().onAuthStateChanged((user) => {
@@ -362,7 +517,7 @@ $(() => {
                         || userContent.changelog_read_version != changelog.content[0].version) {
                         set_unread_changelog();
                     }
-                    $('.mkt-changelog').click(e => {
+                    $('.mkt-changelog').on("click", e => {
                         e.preventDefault();
                         if (userContent.changelog_read_version != changelog.content[0].version) {
                             set_read_changelog();
@@ -410,6 +565,15 @@ $(() => {
                         elements_circuits_list = response.rows.slice(1).map((v, i, a) => v.cells);
                     }
                 });
+                let league_best_option_rules_list;
+                sheetrock({
+                    url: league_best_option_rules_url,
+                    query: 'select A, B, C',
+                    reset: true,
+                    callback: (error, options, response) => {
+                        league_best_option_rules_list = response.rows.slice(1).map((v, i, a) => v.cells);
+                    }
+                });
 
                 let schemaBuilder = lf.schema.create("infodb", 1);
                 schemaBuilder.createTable('elements').
@@ -426,7 +590,6 @@ $(() => {
                     addColumn('name', lf.Type.STRING).
                     addColumn('league', lf.Type.INTEGER).
                     addColumn('pos', lf.Type.INTEGER).
-                    addColumn('mkt', lf.Type.BOOLEAN).
                     addColumn('source', lf.Type.STRING).
                     addPrimaryKey(['id']);
                 schemaBuilder.createTable('objects').
@@ -439,23 +602,28 @@ $(() => {
                     addColumn('circuit_id', lf.Type.INTEGER).
                     addColumn('level', lf.Type.INTEGER).
                     addPrimaryKey(['element_id', 'circuit_id']);
+                schemaBuilder.createTable('league_best_option_rules').
+                    addColumn('rule', lf.Type.STRING).
+                    addColumn('key', lf.Type.INTEGER).
+                    addColumn('value', lf.Type.INTEGER).
+                    addPrimaryKey(['rule', 'key']);
 
                 schemaBuilder.connect({ storeType: lf.schema.DataStoreType.MEMORY }).then((db) => {
                     info_database = db;
                 });
 
-                let loaded_flags = [false, false, false, false];
+                let loaded_flags = [false, false, false, false, false];
                 execute_after_condition(() => {
                     let table = info_database.getSchema().table('elements');
                     return info_database.insertOrReplace().into(table).values(
                         elements_list.map((v, i, a) => table.createRow({
-                            'id': v.id,
+                            'id': parseInt(v.id),
                             'name': v.name,
                             'pos': parseInt(v.pos),
-                            'tier': v.tier,
+                            'tier': parseInt(v.tier),
                             'image_url': v.image_url,
-                            'type': v.type,
-                            'object_id': v.object_id
+                            'type': parseInt(v.type),
+                            'object_id': parseInt(v.object_id)
                         }))
                     ).exec().then(() => loaded_flags[0] = true);
                 }, () => elements_list);
@@ -463,11 +631,10 @@ $(() => {
                     let table = info_database.getSchema().table('circuits');
                     return info_database.insertOrReplace().into(table).values(
                         circuits_list.map((v, i, a) => table.createRow({
-                            'id': v.id,
+                            'id': parseInt(v.id),
                             'name': v.name,
                             'league': parseInt(v.league),
                             'pos': parseInt(v.pos),
-                            'mkt': v.mkt,
                             'source': v.source
                         }))
                     ).exec().then(() => loaded_flags[1] = true);
@@ -475,7 +642,11 @@ $(() => {
                 execute_after_condition(() => {
                     let table = info_database.getSchema().table('objects');
                     return info_database.insertOrReplace().into(table).values(
-                        objects_list.map((v, i, a) => table.createRow(v))
+                        objects_list.map((v, i, a) => table.createRow({
+                            'id': parseInt(v.id),
+                            'name': v.name,
+                            'image_url': v.image_url
+                        }))
                     ).exec().then(() => loaded_flags[2] = true);
                 }, () => objects_list);
                 execute_after_condition(() => {
@@ -488,6 +659,16 @@ $(() => {
                         }))
                     ).exec().then(() => loaded_flags[3] = true);
                 }, () => elements_circuits_list);
+                execute_after_condition(() => {
+                    let table = info_database.getSchema().table('league_best_option_rules');
+                    return info_database.insertOrReplace().into(table).values(
+                        league_best_option_rules_list.map((v, i, a) => table.createRow({
+                            'rule': v.rule,
+                            'key': parseInt(v.key),
+                            'value': parseInt(v.value)
+                        }))
+                    ).exec().then(() => loaded_flags[4] = true);
+                }, () => league_best_option_rules_list);
 
                 // load content
                 execute_after_condition(() => {

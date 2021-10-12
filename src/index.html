@@ -43,20 +43,37 @@
 
 <body>
 
-  <div class="modal" id="popupModal" tabindex="-1" aria-labelledby="popupModalLabel" aria-hidden="true">
+  <div class="modal" id="changelogModal" tabindex="-1" aria-labelledby="changelogModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable" style="transform: none !important;">
       <div class="modal-content">
         <div class="modal-header bg-primary align-items-center py-3">
-          <button type="button" class="mkt-back" id="popup-back-button" style="position:inherit;" disabled>
-            <i class="fas fa-arrow-left"></i>
-          </button>
-          <h3 class="modal-title text-secondary" id="popup-modal-title"></h3>
+          <h3 class="modal-title text-secondary">Changelog</h3>
           <button type="button" class="close text-darker" data-dismiss="modal" aria-label="Close"
             style="position:inherit;">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body px-3" id="popup-modal-body"> </div>
+        <div class="modal-body px-3">
+          <div class="container-fluid" id="changelog-content"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" style="transform: none !important;">
+      <div class="modal-content">
+        <div class="modal-header bg-primary align-items-center py-3">
+          <button type="button" class="mkt-back" id="details-back-button" style="position:inherit;" disabled>
+            <i class="fas fa-arrow-left"></i>
+          </button>
+          <h3 class="modal-title text-secondary" id="details-modal-title"></h3>
+          <button type="button" class="close text-darker" data-dismiss="modal" aria-label="Close"
+            style="position:inherit;">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body bg-dark px-3" id="details-modal-body"> </div>
       </div>
     </div>
   </div>

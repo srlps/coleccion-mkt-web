@@ -99,6 +99,10 @@
     transform: translate(-50%, 0) !important;
 }
 
+.mkt-card-clickable:hover {
+    cursor: pointer;
+}
+
 .mkt-back {
     float: right;
     font-size: 1.3125rem;

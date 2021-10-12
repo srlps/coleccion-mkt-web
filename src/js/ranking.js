@@ -110,17 +110,19 @@ function load_ranking(type) {
         });
         $('.mkt-card-clickable').click(e => {
             let element_div = $(e.currentTarget);
-            show_element_details(
+            show_details('element',
                 {
-                    background: element_div.children('.mkt-background-img').attr('data-src'),
-                    element: element_div.find('.mkt-element-img').attr('data-src'),
-                    object: element_div.find('.mkt-object-img').attr('data-src')
-                },
-                {
-                    id: element_div.attr('data-id'),
-                    name: element_div.attr('data-name'),
-                    type: type,
-                    level: element_div.attr('data-level')
+                    img_urls: {
+                        background: element_div.children('.mkt-background-img').attr('data-src'),
+                        element: element_div.find('.mkt-element-img').attr('data-src'),
+                        object: element_div.find('.mkt-object-img').attr('data-src')
+                    },
+                    data: {
+                        id: element_div.attr('data-id'),
+                        name: element_div.attr('data-name'),
+                        type: type,
+                        level: element_div.attr('data-level')
+                    }
                 }
             );
         });
