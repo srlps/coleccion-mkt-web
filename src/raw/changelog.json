@@ -3,7 +3,9 @@
         {
             "version": "1.2.5_beta",
             "changes": [
-                "Detalles de objetos en la vista de ranking agregado"
+                "Detalles de objetos en la vista de ranking agregado",
+                "Selección de \"mejor opción\" en la vista de detalles en desarrollo. Por ahora elige el elemento con mas alto nivel.",
+                "Las versiones de la aplicación ahora indican que se encuentra en beta"
             ]
         },
         {
